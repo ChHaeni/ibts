@@ -4,13 +4,13 @@ The package is intended to give easy access to and facilitate manipulation of da
 The ibts package introduces a new class `ibts` that inherits from class `data.frame`. This new class adds additional attributes related to interval-based data such as start of intervals, end of intervals, time zone, temporal coverage of intervals and secondary classes of column entries.
 
 ## Installation
-```
+```r
 devtools::install_github('ChHaeni/ibts')
 ```
 
 ## Usage examples
 ### Set up example data.frames
-```
+```r
 # load ibts
 library(ibts)
 
@@ -49,7 +49,7 @@ df2[as.matrix(expand.grid(seq_len(nrow(df2)), seq_len(ncol(df2)-2), KEEP.OUT.ATT
 ```
 
 ### Convert to ibts object
-```
+```r
 #### Create ibts objects from data.frame:
 d1 <- as.ibts(df1, st = parse_date_time("2016-08-16 21:30", "YmdHM") + (ind-1) * 60 * 30, granularity = "30mins")
 d1
@@ -71,7 +71,7 @@ d2
 ```
 
 ### Access some attributes
-```
+```r
 st(d1)
 et(d1)
 colClasses(d1)
@@ -80,7 +80,7 @@ tzone(d1)
 ```
 
 ### Aggregating to coarser intervals
-```
+```r
 # args(pool)
 D1a <- pool(d1, "12hours")
 D1a
@@ -121,7 +121,7 @@ D2 <- pool(d2, d1)
 ```
 
 ### Merging and susetting
-```
+```r
 # merging and subsetting:
 D3 <- merge(d1,d2)
 D4 <- d2[d1]
@@ -145,7 +145,7 @@ d1["2016-08-16 22:28:32"]
 ```
 
 ### Plotting
-```
+```r
 # time series
 par(mfrow = c(2, 2), mar = c(5,4,4,4))
 plot(d1, main = 'a)')
