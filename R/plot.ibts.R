@@ -325,6 +325,29 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     rbind(x[ind, ], add)
                     }))
                 x <- x[-nrow(x), ]
+
+                # shift times!
+                # get diffs to first block, last et
+                igap <- check_gap(x, gap.size.max)
+                gap2 <- check_gap(x, gap.size.max, invert = TRUE)
+                stx1 <- start(x)
+                st_x <- as.numeric(st(x) - stx1, units = 'secs')
+                et_x <- as.numeric(et(x) - stx1, units = 'secs')
+                dt_gap <- unlist(lapply(igap, function(ind) {
+                    st_x[ind[2]] - et_x[ind[1]]
+                    }))
+                st_new <- stx1 + c(st_x[gap2[[1]]], 
+                    unlist(lapply(seq_along(dt_gap), function(index) {
+                        st_x[gap2[[index + 1]]] - sum(dt_gap[1:index])
+                    }))
+                )
+                et_new <- stx1 + c(et_x[gap2[[1]]], 
+                    unlist(lapply(seq_along(dt_gap), function(index) {
+                        et_x[gap2[[index + 1]]] - sum(dt_gap[1:index])
+                    }))
+                )
+                attr(x, 'st') <- st_new
+                attr(x, 'et') <- et_new
                 # get y, x1, x2, xl
                 y <- x[,column,drop=TRUE]
                 x1 <- attr(y, "st")
