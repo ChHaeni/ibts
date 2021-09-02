@@ -290,7 +290,6 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 
 			if(!is.null(gap.size.max)){
 				gap.size.max <- parse_time_diff(gap.size.max)
-				stop("remove.gaps has not been implemented yet.")
 				
                 gps <- check_gap(y, gap.size.max, invert = TRUE)
                 diff_x <- lapply(gps, function(ind) {
@@ -312,7 +311,6 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     brks[seq(1, n, by = s.by)]
                     }, ind = gps, bl = binlengths, MoreArgs = list(xt = x1), SIMPLIFY = FALSE)
 
-                ### TODO: 
                 # get median time step median(diff(st)) for gap size
                 m_dt <- median(diff(x1))
                 # extend data
@@ -332,6 +330,8 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 x1 <- attr(y, "st")
                 x2 <- attr(y, "et")
                 xl <- c(x1[1],rev(x2)[1])
+
+                ### TODO: 
                 # fix xlim != NULL
             }
 
@@ -395,6 +395,8 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 						axis(2,at=grid.y, lty = if(drawaxes) 1 else 0)
 					}
 				}
+                # TODO:
+                # add visual breaks (plotrix?)
 				if(!is.null(xlab_at)){
 					ptx <- as.numeric(xlab_at, units = "secs")
 				}
