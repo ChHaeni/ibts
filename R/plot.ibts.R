@@ -272,7 +272,8 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
             x1 <- attr(y, "st")
             x2 <- attr(y, "et")
             xl <- c(x1[1],rev(x2)[1])
-            ptx <- pretty_dates(with_tz(xl,tzone(x)),pret_n)
+            # get pretty dates
+            ptx_lbl <- ptx <- pretty_dates(with_tz(xl,tzone(x)),pret_n)
             if(!is.null(xlim)){
                 if(is.character(xlim)){
                     if(length(xlim)==1){
@@ -302,7 +303,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 
                 pn <- max(1L, ceiling(pret_n / length(gps)))
                 binlengths <- lapply(diff_x, function(x) pretty_fu(x, pn))
-                ptx <- mapply(function(xt, ind, bl) {
+                ptx_lbl <- unlist(mapply(function(xt, ind, bl) {
                     start <- lubridate:::pretty_point(xt[ind[1]], unit, bl)
                     end <- lubridate:::pretty_point(xt[ind[length(ind)]], unit, bl, FALSE)
                     brks <- seq.POSIXt(start, end, paste(bl, unit))
@@ -310,6 +311,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     s.by <- ceiling(n / pn)
                     brks[seq(1, n, by = s.by)]
                     }, ind = gps, bl = binlengths, MoreArgs = list(xt = x1), SIMPLIFY = FALSE)
+                    )
 
                 # get median time step median(diff(st)) for gap size
                 m_dt <- median(diff(x1))
@@ -325,6 +327,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     rbind(x[ind, ], add)
                     }))
                 x <- x[-nrow(x), ]
+                st_old <- st(x)
 
                 # shift times!
                 # get diffs to first block, last et
@@ -353,12 +356,21 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 x1 <- attr(y, "st")
                 x2 <- attr(y, "et")
                 xl <- c(x1[1],rev(x2)[1])
+                
+                # get ptx
+                browser()
+                ptx <- unlist(lapply(ptx_lbl, function(x) {
+                    st_new[which.min(abs(st_old - x))]
+                    }))
 
                 ### TODO: 
                 # fix xlim != NULL
             }
 
+
             if(is.null(xlab_fmt)){
+                # TODO:
+                # Change format d/m to d/m H:M if not at 00:00!
                 b <- max(diff(unlist(ptx)))
                 if(floor(b/(24*3600)) > 0){
                     if(floor(b/(24*3600)) > 2){
@@ -372,6 +384,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     xlab_fmt <- "%H:%M:%S"
                 }
             }
+            x_labels <- format(ptx_lbl, xlab_fmt)
 
 			yl <- range(y,na.rm=TRUE)
 			if(!add&&missing(ylim)&&!all(is.finite(yl))){
@@ -420,6 +433,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 				}
                 # TODO:
                 # add visual breaks (plotrix?)
+                browser()
 				if(!is.null(xlab_at)){
 					ptx <- as.numeric(xlab_at, units = "secs")
 				}
@@ -428,7 +442,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 				} else if(isFALSE(xlab_fmt)){
 					axis(1,at=ptx,labels=FALSE, lty = if(drawaxes) 1 else 0)
 				} else {
-					axis(1,at=ptx,labels=format(ptx, xlab_fmt), lty = if(drawaxes) 1 else 0)
+					axis(1,at=ptx,labels=x_labels, lty = if(drawaxes) 1 else 0)
 				}
 				abline(v=ptx,col=gridv.col,lty=gridv.lty)
 			}
