@@ -287,8 +287,56 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 }
                 ptx <- pretty_dates(xlim,pret_n)
             }
+
+			if(!is.null(gap.size.max)){
+				gap.size.max <- parse_time_diff(gap.size.max)
+				stop("remove.gaps has not been implemented yet.")
+				
+                gps <- check_gap(y, gap.size.max, invert = TRUE)
+                diff_x <- lapply(gps, function(ind) {
+                    rng <- range(x1[ind])
+                    difftime(rng[2], rng[1], units = 'secs')
+                    }
+                )
+                unit <- lubridate:::pretty_unit(sum(unlist(diff_x)), pret_n)
+                pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
+
+                pn <- max(1L, ceiling(pret_n / length(gps)))
+                binlengths <- lapply(diff_x, function(x) pretty_fu(x, pn))
+                ptx <- mapply(function(xt, ind, bl) {
+                    start <- lubridate:::pretty_point(xt[ind[1]], unit, bl)
+                    end <- lubridate:::pretty_point(xt[ind[length(ind)]], unit, bl, FALSE)
+                    brks <- seq.POSIXt(start, end, paste(bl, unit))
+                    n <- length(brks)
+                    s.by <- ceiling(n / pn)
+                    brks[seq(1, n, by = s.by)]
+                    }, ind = gps, bl = binlengths, MoreArgs = list(xt = x1), SIMPLIFY = FALSE)
+
+                ### TODO: 
+                # get median time step median(diff(st)) for gap size
+                m_dt <- median(diff(x1))
+                # extend data
+                x_orig <- x
+                x <- do.call(rbind, lapply(gps, function(ind) {
+                    n <- length(ind)
+                    add <- as.ibts(NA, 
+                        st = x2[ind[n]],
+                        et = x2[ind[n]] + m_dt,
+                        colClasses = colClasses(x))
+                    names(add) <- names(x)
+                    rbind(x[ind, ], add)
+                    }))
+                x <- x[-nrow(x), ]
+                # get y, x1, x2, xl
+                y <- x[,column,drop=TRUE]
+                x1 <- attr(y, "st")
+                x2 <- attr(y, "et")
+                xl <- c(x1[1],rev(x2)[1])
+                # fix xlim != NULL
+            }
+
             if(is.null(xlab_fmt)){
-                b <- as.numeric(ptx[2] - ptx[1],"secs")
+                b <- max(diff(unlist(ptx)))
                 if(floor(b/(24*3600)) > 0){
                     if(floor(b/(24*3600)) > 2){
                         xlab_fmt <- "%d/%m"
@@ -300,38 +348,6 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 } else {
                     xlab_fmt <- "%H:%M:%S"
                 }
-                # if(b%%(24*3600)>0.5){
-                # 	xlab_fmt <- "%H:%M"
-                # } else {
-                # 	xlab_fmt <- "%d/%m"
-                # }
-            }
-
-			if(!is.null(gap.size.max)){
-				gap.size.max <- parse_time_diff(gap.size.max)
-				browser()
-				stop("remove.gaps has not been implemented yet.")
-				
-                gps <- check_gap(x, gap.size.max, invert = TRUE)
-                st_x <- st(x)
-                diff_x <- lapply(gps, function(ind) {
-                    rng <- range(st_x[ind])
-                    difftime(rng[2], rng[1], units = 'secs')
-                    }
-                )
-                unit <- lubridate:::pretty_unit(sum(unlist(diff_x)), pret_n)
-                pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
-
-                pn <- max(1L, ceiling(pret_n / length(gps)))
-                binlengths <- lapply(diff_x, function(y) pretty_fu(y, pn))
-                breaks <- mapply(function(xt, ind, bl) {
-                    start <- lubridate:::pretty_point(xt[ind[1]], unit, bl)
-                    end <- lubridate:::pretty_point(xt[ind[length(ind)]], unit, bl, FALSE)
-                    brks <- seq.POSIXt(start, end, paste(bl, unit))
-                    n <- length(brks)
-                    s.by <- ceiling(n / pn)
-                    brks[seq(1, n, by = s.by)]
-                    }, ind = gps, bl = binlengths, MoreArgs = list(xt = st_x), SIMPLIFY = FALSE)
             }
 
 			yl <- range(y,na.rm=TRUE)
@@ -547,6 +563,9 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 					}
 					rug(mt[ind])
 				}
+                if (!is.null(gap.size.max)) {
+                    x <- x_orig
+                }
 			}
 		}
 	# }
@@ -582,8 +601,8 @@ check_gap <- function(x, delta_t, invert = FALSE) {
     # convert delta_t to seconds
     delta_t <- parse_time_diff(delta_t)
     # deltas in seconds
-    N <- nrow(x)
-    ds <- as.numeric(st(x)[-1] - et(x)[-N] , units = 'secs')
+    N <- NROW(x)
+    ds <- as.numeric(attr(x, 'st')[-1] - attr(x, 'et')[-N] , units = 'secs')
     # get indices
     ds_ind <- which(ds > delta_t)
     # invert or not
