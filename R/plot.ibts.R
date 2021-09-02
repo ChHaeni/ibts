@@ -319,12 +319,19 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     difftime(rng[2], rng[1], units = 'secs')
                     }
                 )
-
-                pn <- max(2L, ceiling(pret_n / length(gps)))
+                unit <- lubridate:::pretty_unit(sum(unlist(diff_x)), pret_n)
                 pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
-                lapply(diff_x, function(y) pretty_fu(y, pn))
 
-				xx <- pretty_dates(gps$mt,n=nrow(gps))
+                pn <- max(1L, ceiling(pret_n / length(gps)))
+                binlengths <- lapply(diff_x, function(y) pretty_fu(y, pn))
+                breaks <- mapply(function(xt, ind, bl) {
+                    start <- lubridate:::pretty_point(xt[ind[1]], unit, bl)
+                    end <- lubridate:::pretty_point(xt[ind[length(ind)]], unit, bl, FALSE)
+                    brks <- seq.POSIXt(start, end, paste(bl, unit))
+                    n <- length(brks)
+                    s.by <- ceiling(n / pn)
+                    brks[seq(1, n, by = s.by)]
+                    }, ind = gps, bl = binlengths, MoreArgs = list(xt = st_x), SIMPLIFY = FALSE)
             }
 
 			yl <- range(y,na.rm=TRUE)
