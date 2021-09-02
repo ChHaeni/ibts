@@ -269,103 +269,64 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 				cC <- "num"
 			}
 
+            x1 <- attr(y, "st")
+            x2 <- attr(y, "et")
+            xl <- c(x1[1],rev(x2)[1])
+            ptx <- pretty_dates(with_tz(xl,tzone(x)),pret_n)
+            if(!is.null(xlim)){
+                if(is.character(xlim)){
+                    if(length(xlim)==1){
+                        xlim <- parse_timerange(xlim,tz=tzone(x))
+                    } else {
+                        xlim <- parse_date_time3(xlim,tz=tzone(x),quiet=TRUE)
+                    }			
+                } else if(is.numeric(xlim)){
+                    xlim <- c(x1[xlim[1]],x2[xlim[2]])
+                } else {
+                    xlim <- as.POSIXct(xlim)
+                }
+                ptx <- pretty_dates(xlim,pret_n)
+            }
+            if(is.null(xlab_fmt)){
+                b <- as.numeric(ptx[2] - ptx[1],"secs")
+                if(floor(b/(24*3600)) > 0){
+                    if(floor(b/(24*3600)) > 2){
+                        xlab_fmt <- "%d/%m"
+                    } else {
+                        xlab_fmt <- "%d/%m %H:%M"
+                    }
+                } else if(floor(b/60) > 0){
+                    xlab_fmt <- "%H:%M"
+                } else {
+                    xlab_fmt <- "%H:%M:%S"
+                }
+                # if(b%%(24*3600)>0.5){
+                # 	xlab_fmt <- "%H:%M"
+                # } else {
+                # 	xlab_fmt <- "%d/%m"
+                # }
+            }
+
 			if(!is.null(gap.size.max)){
 				gap.size.max <- parse_time_diff(gap.size.max)
 				browser()
 				stop("remove.gaps has not been implemented yet.")
-				# if(length(original_column) > 1){
-				# 	na.ind <- is.na(x[,original_column[1]]) & is.na(x[,original_column[2]])
-				# } else {
-				# 	na.ind <- is.na(x[,original_column])
-				# }
-				# # gps.ind <- datagaps(x[,original_column],check.all=TRUE,return.indices=TRUE)
-				# if(sum(na.ind)){
-				# 	x <- x[!na.ind,]
-				# 	y <- y[!na.ind]
-				# }
-				x1 <- attr(x, "st")
-				x2 <- attr(x, "et")
 				
-				gps <- datagaps(x[,original_column],check.all=TRUE,invert=TRUE)[[1]]
-				gps <- gps[gps$duration > gap.size.max,]
-				gps$mt <- gps$st + gps$duration/2
-				
-				xx <- pretty_dates(gps$mt,n=nrow(gps))
+                gps <- check_gap(x, gap.size.max, invert = TRUE)
+                st_x <- st(x)
+                diff_x <- lapply(gps, function(ind) {
+                    rng <- range(st_x[ind])
+                    difftime(rng[2], rng[1], units = 'secs')
+                    }
+                )
 
-				xl <- c(x1[1],rev(x2)[1])
-				ptx <- pretty_dates(with_tz(xl,tzone(x)),pret_n)
-				if(!is.null(xlim)){
-					if(is.character(xlim)){
-						if(length(xlim)==1){
-							xlim <- parse_timerange(xlim,tz=tzone(x))
-						} else {
-							xlim <- parse_date_time3(xlim,tz=tzone(x),quiet=TRUE)
-						}			
-					} else if(is.numeric(xlim)){
-						xlim <- c(x1[xlim[1]],x2[xlim[2]])
-					} else {
-						xlim <- as.POSIXct(xlim)
-					}
-					ptx <- pretty_dates(xlim,pret_n)
-				}
-				if(is.null(xlab_fmt)){
-					b <- as.numeric(ptx[2] - ptx[1],"secs")
-					if(floor(b/(24*3600)) > 0){
-						if(floor(b/(24*3600)) > 2){
-							xlab_fmt <- "%d/%m"
-						} else {
-							xlab_fmt <- "%d/%m %H:%M"
-						}
-					} else if(floor(b/60) > 0){
-						xlab_fmt <- "%H:%M"
-					} else {
-						xlab_fmt <- "%H:%M:%S"
-					}
-					# if(b%%(24*3600)>0.5){
-					# 	xlab_fmt <- "%H:%M"
-					# } else {
-					# 	xlab_fmt <- "%d/%m"
-					# }
-				}
-			} else {
-				x1 <- attr(y, "st")
-				x2 <- attr(y, "et")
-				xl <- c(x1[1],rev(x2)[1])
-				ptx <- pretty_dates(with_tz(xl,tzone(x)),pret_n)
-				if(!is.null(xlim)){
-					if(is.character(xlim)){
-						if(length(xlim)==1){
-							xlim <- parse_timerange(xlim,tz=tzone(x))
-						} else {
-							xlim <- parse_date_time3(xlim,tz=tzone(x),quiet=TRUE)
-						}			
-					} else if(is.numeric(xlim)){
-						xlim <- c(x1[xlim[1]],x2[xlim[2]])
-					} else {
-						xlim <- as.POSIXct(xlim)
-					}
-					ptx <- pretty_dates(xlim,pret_n)
-				}
-				if(is.null(xlab_fmt)){
-					b <- as.numeric(ptx[2] - ptx[1],"secs")
-					if(floor(b/(24*3600)) > 0){
-						if(floor(b/(24*3600)) > 2){
-							xlab_fmt <- "%d/%m"
-						} else {
-							xlab_fmt <- "%d/%m %H:%M"
-						}
-					} else if(floor(b/60) > 0){
-						xlab_fmt <- "%H:%M"
-					} else {
-						xlab_fmt <- "%H:%M:%S"
-					}
-					# if(b%%(24*3600)>0.5){
-					# 	xlab_fmt <- "%H:%M"
-					# } else {
-					# 	xlab_fmt <- "%d/%m"
-					# }
-				}
-			}
+                pn <- max(2L, ceiling(pret_n / length(gps)))
+                pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
+                lapply(diff_x, function(y) pretty_fu(y, pn))
+
+				xx <- pretty_dates(gps$mt,n=nrow(gps))
+            }
+
 			yl <- range(y,na.rm=TRUE)
 			if(!add&&missing(ylim)&&!all(is.finite(yl))){
 				stop("Data contains infinite values! Please provide argument ylim!")
@@ -586,3 +547,46 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 	}
 }
 
+### create check_diff and check_gap
+check_diff <- function(x, max.diff, invert = FALSE, abs.diff = FALSE) {
+    # convert to numeric
+    if (!is.numeric(x)) x <- as.numeric(x)
+    # convert max.diff to seconds if necessary
+    max.diff <- parse_time_diff(max.diff)
+    # get indices
+    if (abs.diff) {
+        ds_ind <- which(abs(diff(x)) > max.diff)
+    } else {
+        ds_ind <- which(diff(x) > max.diff)
+    }
+    # invert or not
+    if (invert) {
+        mapply(seq,
+            c(1, ds_ind + 1),
+            c(ds_ind, length(x)),
+            SIMPLIFY = FALSE
+            )
+    } else {
+        lapply(ds_ind, function(y) c(y, y + 1))
+    }
+}
+
+check_gap <- function(x, delta_t, invert = FALSE) {
+    # convert delta_t to seconds
+    delta_t <- parse_time_diff(delta_t)
+    # deltas in seconds
+    N <- nrow(x)
+    ds <- as.numeric(st(x)[-1] - et(x)[-N] , units = 'secs')
+    # get indices
+    ds_ind <- which(ds > delta_t)
+    # invert or not
+    if (invert) {
+        mapply(seq,
+            c(1, ds_ind + 1),
+            c(ds_ind, N),
+            SIMPLIFY = FALSE
+            )
+    } else {
+        lapply(ds_ind, function(x) c(x, x + 1))
+    }
+}
