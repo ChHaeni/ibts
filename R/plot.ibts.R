@@ -452,7 +452,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 # pass axis.break arguments
                 # add gap.width (duration of added NA interval)
                 if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
-                bpos <- unlist(lapply(igap, function(ind) x1[ind[1]]))
+                bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
                 for (b in bpos) plotrix::axis.break(breakpos = b)
 			}
 			if(!blank){
