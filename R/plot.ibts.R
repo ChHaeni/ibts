@@ -293,10 +293,15 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 				gap.size.max <- parse_time_diff(gap.size.max)
 				
                 gps <- check_gap(y, gap.size.max, invert = TRUE)
-                diff_x <- lapply(gps, function(ind) {
-                    rng <- range(x1[ind])
-                    difftime(rng[2], rng[1], units = 'secs')
+                fc <- if (length(gps) > 1) {
+                        c(0.75, rep(0.5, length(gps) - 2), 0.75)
+                    } else {
+                        1
                     }
+                diff_x <- mapply(function(ind, fct) {
+                    rng <- range(x1[ind])
+                    difftime(rng[2], rng[1], units = 'secs') * fct
+                    }, ind = gps, fct = fc, SIMPLIFY = FALSE
                 )
                 unit <- lubridate:::pretty_unit(sum(unlist(diff_x)), pret_n)
                 pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
@@ -304,22 +309,34 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 # get tick breaks per 'chunk', proportional to chunk lengths
                 lns <- unlist(lapply(gps, 
                     function(ind) as.numeric(diff(range(x1[ind])), units = 'secs')))
-                pn <- pmax(1, ceiling(pret_n / sum(lns) * lns))
+                pn <- pmax(2, ceiling(pret_n / sum(lns) * lns))
                 binlengths <- mapply(function(x, p) pretty_fu(x, p), x = diff_x, p = pn)
-                ptx_lbl <- do.call(c, mapply(function(xt, ind, bl, p) {
-                    start <- lubridate:::pretty_point(xt[ind[1]], unit, bl)
-                    end <- lubridate:::pretty_point(xt[ind[length(ind)]], unit, bl, FALSE)
-                    brks <- seq.POSIXt(start, end, paste(bl, unit))
-                    n <- length(brks)
-                    s.by <- ceiling(n / p)
-                    brks[seq(1, n, by = s.by)]
-                    }, ind = gps, bl = binlengths, p = pn, MoreArgs = list(xt = x1), 
-                        SIMPLIFY = FALSE)
-                )
+                # ptx_lbl <- do.call(c,
+                #     mapply(function(ind, p) pretty(x1[ind], n = p, min.n = 1), ind = gps, p = pn,
+                #         SIMPLIFY = FALSE)
+                #     )
 
-                # TODO:
-                # fix tick positions
-
+                npn <- length(pn)
+                ptx_lbl <- vector('list', npn)
+                for (i in seq_along(pn)) {
+                    rng <- range(x1[gps[[i]]])
+                    if (i == 1) {
+                        xt_s <- x1[1]
+                    } else {
+                        xt_s <- quantile(rng, 0.25)
+                    }
+                    if (i == npn) {
+                        xt_e <- x1[length(x1)]
+                    } else {
+                        xt_e <- quantile(rng, 0.75)
+                    }
+                    start <- lubridate:::pretty_point(xt_s, unit, binlengths[i])
+                    end <- lubridate:::pretty_point(xt_e, unit, binlengths[i], FALSE)
+                    brks <- seq.POSIXt(start, end, paste(binlengths[i], unit))
+                    ptx_lbl[[i]] <- brks[brks >= rng[1] & brks <= rng[2]]
+                }
+                ptx_lbl <- do.call(c, ptx_lbl)
+                
                 # get median time step median(diff(st)) for gap size
                 m_dt <- median(diff(x1))
                 # extend data
@@ -366,7 +383,9 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 
                 # get ptx
                 ptx <- unlist(lapply(as.numeric(ptx_lbl, units = 'secs'), function(x) {
-                    st_new[which.min(abs(st_old - x))]
+                    ind <- which.min(abs(st_old - x))
+                    add <- x - st_old[ind]
+                    st_new[ind] + add
                     }))
 
                 ### TODO: 
@@ -447,13 +466,15 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 				} else {
 					axis(1,at=ptx,labels=x_labels, lty = if(drawaxes) 1 else 0)
 				}
-				abline(v=ptx,col=gridv.col,lty=gridv.lty)
+				# abline(v=ptx,col=gridv.col,lty=gridv.lty)
                 # TODO:
                 # pass axis.break arguments
                 # add gap.width (duration of added NA interval)
+                # adapt break width to gap.width
                 if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
                 bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
                 for (b in bpos) plotrix::axis.break(breakpos = b)
+                abline(v = bpos, col = 'lightgrey')
 			}
 			if(!blank){
 				if(cC=="sum"){
