@@ -327,7 +327,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     rbind(x[ind, ], add)
                     }))
                 x <- x[-nrow(x), ]
-                st_old <- st(x)
+                st_old <- as.numeric(st(x), units = 'secs')
 
                 # shift times!
                 # get diffs to first block, last et
@@ -358,7 +358,6 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 xl <- c(x1[1],rev(x2)[1])
                 
                 # get ptx
-                browser()
                 ptx <- unlist(lapply(ptx_lbl, function(x) {
                     st_new[which.min(abs(st_old - x))]
                     }))
