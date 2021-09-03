@@ -306,15 +306,19 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     function(ind) as.numeric(diff(range(x1[ind])), units = 'secs')))
                 pn <- pmax(1, ceiling(pret_n / sum(lns) * lns))
                 binlengths <- mapply(function(x, p) pretty_fu(x, p), x = diff_x, p = pn)
-                ptx_lbl <- unlist(mapply(function(xt, ind, bl, p) {
+                ptx_lbl <- do.call(c, mapply(function(xt, ind, bl, p) {
                     start <- lubridate:::pretty_point(xt[ind[1]], unit, bl)
                     end <- lubridate:::pretty_point(xt[ind[length(ind)]], unit, bl, FALSE)
                     brks <- seq.POSIXt(start, end, paste(bl, unit))
                     n <- length(brks)
                     s.by <- ceiling(n / p)
                     brks[seq(1, n, by = s.by)]
-                    }, ind = gps, bl = binlengths, p = pn, MoreArgs = list(xt = x1), SIMPLIFY = FALSE)
-                    )
+                    }, ind = gps, bl = binlengths, p = pn, MoreArgs = list(xt = x1), 
+                        SIMPLIFY = FALSE)
+                )
+
+                # TODO:
+                # fix tick positions
 
                 # get median time step median(diff(st)) for gap size
                 m_dt <- median(diff(x1))
@@ -361,7 +365,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 xl <- c(x1[1],rev(x2)[1])
                 
                 # get ptx
-                ptx <- unlist(lapply(ptx_lbl, function(x) {
+                ptx <- unlist(lapply(as.numeric(ptx_lbl, units = 'secs'), function(x) {
                     st_new[which.min(abs(st_old - x))]
                     }))
 
@@ -433,9 +437,6 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 						axis(2,at=grid.y, lty = if(drawaxes) 1 else 0)
 					}
 				}
-                # TODO:
-                # add visual breaks (plotrix?)
-                browser()
 				if(!is.null(xlab_at)){
 					ptx <- as.numeric(xlab_at, units = "secs")
 				}
@@ -447,6 +448,12 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 					axis(1,at=ptx,labels=x_labels, lty = if(drawaxes) 1 else 0)
 				}
 				abline(v=ptx,col=gridv.col,lty=gridv.lty)
+                # TODO:
+                # pass axis.break arguments
+                # add gap.width (duration of added NA interval)
+                if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
+                bpos <- unlist(lapply(igap, function(ind) x1[ind[1]]))
+                for (b in bpos) plotrix::axis.break(breakpos = b)
 			}
 			if(!blank){
 				if(cC=="sum"){
