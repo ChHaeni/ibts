@@ -301,16 +301,19 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 unit <- lubridate:::pretty_unit(sum(unlist(diff_x)), pret_n)
                 pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
 
-                pn <- max(1L, ceiling(pret_n / length(gps)))
-                binlengths <- lapply(diff_x, function(x) pretty_fu(x, pn))
-                ptx_lbl <- unlist(mapply(function(xt, ind, bl) {
+                # get tick breaks per 'chunk', proportional to chunk lengths
+                lns <- unlist(lapply(gps, 
+                    function(ind) as.numeric(diff(range(x1[ind])), units = 'secs')))
+                pn <- pmax(1, ceiling(pret_n / sum(lns) * lns))
+                binlengths <- mapply(function(x, p) pretty_fu(x, p), x = diff_x, p = pn)
+                ptx_lbl <- unlist(mapply(function(xt, ind, bl, p) {
                     start <- lubridate:::pretty_point(xt[ind[1]], unit, bl)
                     end <- lubridate:::pretty_point(xt[ind[length(ind)]], unit, bl, FALSE)
                     brks <- seq.POSIXt(start, end, paste(bl, unit))
                     n <- length(brks)
-                    s.by <- ceiling(n / pn)
+                    s.by <- ceiling(n / p)
                     brks[seq(1, n, by = s.by)]
-                    }, ind = gps, bl = binlengths, MoreArgs = list(xt = x1), SIMPLIFY = FALSE)
+                    }, ind = gps, bl = binlengths, p = pn, MoreArgs = list(xt = x1), SIMPLIFY = FALSE)
                     )
 
                 # get median time step median(diff(st)) for gap size
