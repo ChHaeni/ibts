@@ -4,7 +4,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 	lty = 1, col = 1, lwd = 1, lty.v = lty, col.v = col, lwd.v = lwd,
 	grid.col = "lightgrey", grid.lty = 3, gridv.col = grid.col, ylim2 = NULL, 
 	col2 = "grey", lty2 = lty, lwd2 = lwd, lty.v2 = lty2, col.v2 = col2,
-	lwd.v2 = lwd2, type2 = NULL, ylab2 = NULL, gap.size.max = NULL,
+	lwd.v2 = lwd2, type2 = NULL, ylab2 = NULL, gap.size.max = NULL, gap.size = 0.02,
 	gridv.lty = grid.lty, include.zero = FALSE, grid.y = NULL, 
 	pret_n = 5, xlab_at = NULL, xlab_fmt = NULL, xlab_labels = NULL,
 	shadeEdges = TRUE, border.col = col, dx = NULL, 
@@ -337,15 +337,28 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 }
                 ptx_lbl <- do.call(c, ptx_lbl)
                 
-                # get median time step median(diff(st)) for gap size
-                m_dt <- median(diff(x1))
+                # get gap size
+                # get total time
+                tot <- sum(x2 - x1)
+                # if gap < 1 then relative to x, otherwise parse_time_diff
+                if (is.numeric(gap.size) && gap.size < 1) {
+                    # relative
+                    tot_new <- as.numeric(tot / (1 - (npn - 1) * gap.size), units = 'secs')
+                    gap_secs <- as.numeric(tot_new * gap.size, units = 'secs')
+                } else {
+                    # absolute
+                    gap_secs <- parse_time_diff(gap.size)
+                    tot_new <- as.numeric(tot, units = 'secs') + (npn - 1) * gap_secs
+                }
+                gap_rel <- gap_secs / tot_new
+
                 # extend data
                 x_orig <- x
                 x <- do.call(rbind, lapply(gps, function(ind) {
                     n <- length(ind)
                     add <- as.ibts(NA, 
                         st = x2[ind[n]],
-                        et = x2[ind[n]] + m_dt,
+                        et = x2[ind[n]] + gap_secs,
                         colClasses = colClasses(x))
                     names(add) <- names(x)
                     rbind(x[ind, ], add)
@@ -473,7 +486,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 # adapt break width to gap.width
                 if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
                 bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
-                for (b in bpos) plotrix::axis.break(breakpos = b)
+                for (b in bpos) plotrix::axis.break(breakpos = b, brw = gap_rel)
                 abline(v = bpos, col = 'lightgrey')
 			}
 			if(!blank){
