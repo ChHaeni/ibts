@@ -5,6 +5,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 	grid.col = "lightgrey", grid.lty = 3, gridv.col = grid.col, ylim2 = NULL, 
 	col2 = "grey", lty2 = lty, lwd2 = lwd, lty.v2 = lty2, col.v2 = col2,
 	lwd.v2 = lwd2, type2 = NULL, ylab2 = NULL, gap.size.max = NULL, gap.size = 0.02,
+    gap.line.col = 'lightgrey', gap.line.lty = 2,
 	gridv.lty = grid.lty, include.zero = FALSE, grid.y = NULL, 
 	pret_n = 5, xlab_at = NULL, xlab_fmt = NULL, xlab_labels = NULL,
 	shadeEdges = TRUE, border.col = col, dx = NULL, 
@@ -487,7 +488,8 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
                 bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
                 for (b in bpos) plotrix::axis.break(breakpos = b, brw = gap_rel)
-                abline(v = bpos, col = 'lightgrey')
+                abline(v = bpos + gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
+                abline(v = bpos - gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
 			}
 			if(!blank){
 				if(cC=="sum"){
