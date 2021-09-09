@@ -313,10 +313,6 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     function(ind) as.numeric(diff(range(x1[ind])), units = 'secs')))
                 pn <- pmax(2, ceiling(pret_n / sum(lns) * lns))
                 binlengths <- mapply(function(x, p) pretty_fu(x, p), x = diff_x, p = pn)
-                # ptx_lbl <- do.call(c,
-                #     mapply(function(ind, p) pretty(x1[ind], n = p, min.n = 1), ind = gps, p = pn,
-                #         SIMPLIFY = FALSE)
-                #     )
 
                 npn <- length(pn)
                 ptx_lbl <- vector('list', npn)
@@ -410,19 +406,58 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 
 
             if(is.null(xlab_fmt)){
-                # TODO:
-                # Change format d/m to d/m H:M if not at 00:00!
-                b <- max(diff(unlist(ptx)))
-                if(floor(b/(24*3600)) > 0){
-                    if(floor(b/(24*3600)) > 2){
-                        xlab_fmt <- "%d/%m"
-                    } else {
-                        xlab_fmt <- "%d/%m %H:%M"
-                    }
-                } else if(floor(b/60) > 0){
-                    xlab_fmt <- "%H:%M"
+                # check year
+                if (ysc <- length(unique(year(ptx_lbl))) > 1) {
+                    xlab_fmt <- '%Y'
                 } else {
-                    xlab_fmt <- "%H:%M:%S"
+                    xlab_fmt <- ''
+                }
+                # check all month == 1
+                ms1 <- sum(month(ptx_lbl)) == length(ptx_lbl)
+                # check all days == 1
+                ds1 <- sum(day(ptx_lbl)) == length(ptx_lbl)
+                # check all hour == 0
+                Hs0 <- sum(hour(ptx_lbl)) == 0
+                # check all minute == 0
+                Ms0 <- sum(minute(ptx_lbl)) == 0
+                # check all second == 0
+                Ss0 <- sum(second(ptx_lbl)) == 0
+                # case other than only years
+                if (!(ms1 && ds1 && Hs0 && Ms0 && Ss0)) {
+                    # HM(S) needed?
+                    if (Hs0 && Ms0 && Ss0) {
+                        # without HM(S)
+                        HMS <- ''
+                    } else {
+                        # S needed?
+                        if (Ss0) {
+                            # HM
+                            HMS <- ' %H:%M'
+                        } else {
+                            # HMS
+                            HMS <- ' %H:%M:%S'
+                        }
+                    }
+                    # month changes
+                    msc <- length(unique(month(ptx_lbl))) > 1
+                    # day changes
+                    dsc <- length(unique(day(ptx_lbl))) > 1
+                    # day format
+                    if (!ysc && !msc && !dsc) {
+                        # same day
+                        md <- ''
+                    } else if (msc && HMS == '') {
+                        # first of month at 00:00
+                        md <- paste0('%b', if (ysc) ' ')
+                    # } else if (ysc) {
+                    #     # format with year
+                    #     md <- '-%m-%d'
+                    } else {
+                        # format without year
+                        md <- '%d.%m.'
+                    }
+                    # paste together
+                    xlab_fmt <- paste0(md, xlab_fmt, HMS)
                 }
             }
             x_labels <- format(ptx_lbl, xlab_fmt)
