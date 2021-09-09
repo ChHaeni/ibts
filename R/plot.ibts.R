@@ -5,8 +5,8 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 	grid.col = "lightgrey", grid.lty = 3, gridv.col = grid.col, ylim2 = NULL, 
 	col2 = "grey", lty2 = lty, lwd2 = lwd, lty.v2 = lty2, col.v2 = col2,
 	lwd.v2 = lwd2, type2 = NULL, ylab2 = NULL, gap.size.max = NULL, gap.size = 0.02,
-    gap.line.col = 'black', gap.line.lty = 3, gap.break.bgcol = 'white', 
-    gap.break.breakcol = 'black', gap.break.style = c('zigzag', 'slash')[1],
+        gap.line.col = 'black', gap.line.lty = 3, gap.break.bgcol = 'white', 
+        gap.break.breakcol = 'black', gap.break.style = c('zigzag', 'slash', 'gap')[1],
 	gridv.lty = grid.lty, include.zero = FALSE, grid.y = NULL, 
 	pret_n = 5, xlab_at = NULL, xlab_fmt = NULL, xlab_labels = NULL,
 	shadeEdges = TRUE, border.col = col, dx = NULL, 
@@ -341,7 +341,9 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 
                 # get gap size
                 # get total time
-                tot <- sum(x2 - x1)
+                tot <- sum(unlist(lapply(gps, 
+                    function(ind) as.numeric(max(x2[ind]) - x1[ind[1]], units = 'secs'))
+                    ))
                 # if gap < 1 then relative to x, otherwise parse_time_diff
                 if (is.numeric(gap.size) && gap.size < 1) {
                     # relative
@@ -352,7 +354,6 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     gap_secs <- parse_time_diff(gap.size)
                     tot_new <- as.numeric(tot, units = 'secs') + (npn - 1) * gap_secs
                 }
-                gap_rel <- gap_secs / tot_new
 
                 # extend data
                 x_orig <- x
@@ -488,11 +489,18 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 # adapt break width to gap.width
                 if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
                 bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
-                abline(v = bpos + gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
-                abline(v = bpos - gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
-                for (b in bpos) plotrix::axis.break(breakpos = b, brw = gap_rel, 
-                    bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
-                    style = gap.break.style)
+                gap_rel <- gap_secs / diff(par('usr')[1:2])
+                if (gap.break.style[1] == 'gap') {
+                    for (b in bpos) plotrix::axis.break(breakpos = b - gap_secs / 2, brw = gap_rel, 
+                        bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
+                        style = gap.break.style[1])
+                } else {
+                    abline(v = bpos + gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
+                    abline(v = bpos - gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
+                    for (b in bpos) plotrix::axis.break(breakpos = b, brw = gap_rel, 
+                        bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
+                        style = gap.break.style[1])
+                }
 			}
 			if(!blank){
 				if(cC=="sum"){
