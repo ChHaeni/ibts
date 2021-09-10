@@ -517,19 +517,21 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 				} else {
 					axis(1,at=ptx,labels=x_labels, lty = if(drawaxes) 1 else 0)
 				}
-                if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
-                bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
-                gap_rel <- gap_secs / diff(par('usr')[1:2])
-                if (gap.break.style[1] == 'gap') {
-                    for (b in bpos) plotrix::axis.break(breakpos = b - gap_secs / 2, brw = gap_rel, 
-                        bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
-                        style = gap.break.style[1])
-                } else {
-                    abline(v = bpos + gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
-                    abline(v = bpos - gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
-                    for (b in bpos) plotrix::axis.break(breakpos = b, brw = gap_rel, 
-                        bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
-                        style = gap.break.style[1])
+                if (!is.null(gap.size.max)) {
+                    if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
+                    bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
+                    gap_rel <- gap_secs / diff(par('usr')[1:2])
+                    if (gap.break.style[1] == 'gap') {
+                        for (b in bpos) plotrix::axis.break(breakpos = b - gap_secs / 2, brw = gap_rel, 
+                            bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
+                            style = gap.break.style[1])
+                    } else {
+                        abline(v = bpos + gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
+                        abline(v = bpos - gap_secs / 2, col = gap.line.col, lty = gap.line.lty)
+                        for (b in bpos) plotrix::axis.break(breakpos = b, brw = gap_rel, 
+                            bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
+                            style = gap.break.style[1])
+                    }
                 }
 			}
 			if(!blank){
