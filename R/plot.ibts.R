@@ -446,7 +446,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     if (!ysc && !msc && !dsc) {
                         # same day
                         md <- ''
-                    } else if (msc && HMS == '') {
+                    } else if (msc && ds1 && HMS == '') {
                         # first of month at 00:00
                         md <- paste0('%b', if (ysc) ' ')
                     # } else if (ysc) {
