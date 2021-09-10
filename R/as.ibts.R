@@ -91,6 +91,9 @@ as.ibts.data.frame <- function(x,st="st",et="et",colClasses=ifelse(sapply(x,is.n
 			}
 		} else if(is.POSIXt(st)){
 			st_index <- as.POSIXct(st)
+        } else if(is.numeric(st) && length(st) == 1 && st <= length(x)) {
+            st_index <- x[, st]
+            remove_cols[1] <- names(x)[st]
 		} else if(!is.POSIXct(st)){
 			stop("Please provide either a (column/list) name or a vector that can be converted to a time object")
 		} else {
@@ -132,6 +135,9 @@ as.ibts.data.frame <- function(x,st="st",et="et",colClasses=ifelse(sapply(x,is.n
 			}
 		} else if(is.POSIXt(et)){
 			et_index <- as.POSIXct(et)
+        } else if(is.numeric(et) && length(et) == 1 && et <= length(x)) {
+            et_index <- x[, et]
+            remove_cols[2] <- names(x)[et]
 		} else if(!is.POSIXct(et)){
 			stop("Please provide either a (column/list) name or a vector that can be converted to a time object")
 		} else {
