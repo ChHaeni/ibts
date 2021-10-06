@@ -6,7 +6,7 @@ function(x,y=NULL,sep=NULL,usetz=FALSE,format=""){
 			y <- x[2]
 			x <- x[1]
 		}
-	} else {
+	} else if (is.null(y)) {
 		y <- x[2]
 		x <- x[1]		
 	}
