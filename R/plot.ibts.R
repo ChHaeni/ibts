@@ -49,6 +49,12 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 			column[covY<min.coverage] <- NA
 		}
 		X <- as.data.frame(merge(x,column),keepAtts=FALSE)
+        if (colClasses(x) == 'circ' && colClasses(column) == 'circ') {
+            dif <- X[, 2] - X[, 1]
+            dif[dif < -180] <- dif[dif < -180] + 360
+            dif[dif > 180] <- dif[dif > 180] - 360
+            X[, 2] <- X[, 1] + dif
+        }
 		if(missing(lty)) lty <- NULL
 		if(missing(stats)){
 			type <- if(blank) "n" else "p"
