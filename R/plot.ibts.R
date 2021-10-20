@@ -538,6 +538,11 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                             bgcol = gap.break.bgcol, breakcol = gap.break.breakcol,
                             style = gap.break.style[1])
                     }
+                    # TODO:
+                    # abline(v=ptx,col=gridv.col,lty=gridv.lty)
+                    # but remove ptx in gaps
+                } else {
+                    abline(v=ptx,col=gridv.col,lty=gridv.lty)
                 }
 			}
 			if(!blank){
