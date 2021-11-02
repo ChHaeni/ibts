@@ -5,9 +5,9 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 	grid.col = "lightgrey", grid.lty = 3, gridv.col = grid.col, ylim2 = NULL, 
 	col2 = "grey", lty2 = lty, lwd2 = lwd, lty.v2 = lty2, col.v2 = col2,
 	lwd.v2 = lwd2, type2 = NULL, ylab2 = NULL, gap.size.max = NULL, gap.size = 0.02,
-        gap.line.col = 'black', gap.line.lty = 3, gap.break.bgcol = 'white', 
-        gap.break.breakcol = 'black', gap.break.style = c('zigzag', 'slash', 'gap')[1],
-	gridv.lty = grid.lty, include.zero = FALSE, grid.y = NULL, 
+    gap.line.col = 'black', gap.line.lty = 3, gap.break.bgcol = 'white', 
+    gap.break.breakcol = 'black', gap.break.style = c('zigzag', 'slash', 'gap')[1],
+    gap.equi.axis = FALSE, gridv.lty = grid.lty, include.zero = FALSE, grid.y = NULL, 
 	pret_n = 5, xlab_at = NULL, xlab_fmt = NULL, xlab_labels = NULL,
 	shadeEdges = TRUE, border.col = col, dx = NULL, 
 	na.mark = c("none", "simple", "lines"), na.jitter = FALSE, col.se = NULL, 
@@ -311,7 +311,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     difftime(rng[2], rng[1], units = 'secs') * fct
                     }, ind = gps, fct = fc, SIMPLIFY = FALSE
                 )
-                unit <- lubridate:::pretty_unit(sum(unlist(diff_x)), pret_n)
+                unit <- lubridate:::pretty_unit(sum(unlist(diff_x)) / pret_n)
                 pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
 
                 # get tick breaks per 'chunk', proportional to chunk lengths
@@ -319,6 +319,12 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     function(ind) as.numeric(diff(range(x1[ind])), units = 'secs')))
                 pn <- pmax(2, ceiling(pret_n / sum(lns) * lns))
                 binlengths <- mapply(function(x, p) pretty_fu(x, p), x = diff_x, p = pn)
+                if (gap.equi.axis) {
+                    binlengths[] <- binlengths[which.min(lns)]
+                    pn <- mapply(function(bn, dfx) optimize(function(x) {
+                        (bn - pretty_fu(dfx, x)) ^ 2
+                        }, range(pn))$objective, bn = binlengths, dfx = diff_x)
+                }
 
                 npn <- length(pn)
                 ptx_lbl <- vector('list', npn)
