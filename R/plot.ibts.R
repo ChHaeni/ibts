@@ -9,7 +9,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
     gap.break.breakcol = 'black', gap.break.style = c('zigzag', 'slash', 'gap')[1],
     gap.equi.axis = FALSE, gridv.lty = grid.lty, include.zero = FALSE, grid.y = NULL, 
 	pret_n = 5, xlab_at = NULL, xlab_fmt = NULL, xlab_labels = NULL,
-	shadeEdges = TRUE, border.col = col, dx = NULL, 
+	shadeEdges = TRUE, border.col = col, dx = NULL, na.rm = FALSE, 
 	na.mark = c("none", "simple", "lines"), na.jitter = FALSE, col.se = NULL, 
 	border.se = NULL, alpha = 0.05, pcol = "#FFFFFFCC", pch = "+", 
 	stats = c("cor", "lm", "rlm", "lmrob", "loess", "deming", "pbreg", "thielsen"),
@@ -216,11 +216,20 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 		}
 	} else {
 		original_column <- column
-		for(column in original_column){
+        for(column in original_column) {
 			if(min.coverage>0){
 				covR <- attr(x[,column],"coverage")
 				x[covR<min.coverage,column] <- NA
 			}
+        }
+        if (na.rm) {
+            if (length(original_column) > 1) {
+                x <- x[rowSums(!is.na(x[, original_column])) > 0, ]
+            } else {
+                x <- x[!is.na(x[[original_column]]), ]
+            }
+        }
+		for(column in original_column){
 			cC <- attr(x[,column],"colClasses")
 			y <- x[,column,drop=TRUE]
 
@@ -311,7 +320,13 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     difftime(rng[2], rng[1], units = 'secs') * fct
                     }, ind = gps, fct = fc, SIMPLIFY = FALSE
                 )
-                unit <- lubridate:::pretty_unit(sum(unlist(diff_x)) / pret_n)
+                # TODO: Fix unit!!!!
+                #       Now unit depends on smallest chunk, improve!
+                # unit <- lubridate:::pretty_unit(sum(unlist(diff_x)) / pret_n)
+                unit <- lubridate:::pretty_unit(min(
+                    sum(unlist(diff_x)) / pret_n,
+                    min(unlist(diff_x)) / 2
+                    ))
                 pretty_fu <- eval(parse(text = paste0('lubridate:::pretty_', unit)))
 
                 # get tick breaks per 'chunk', proportional to chunk lengths
@@ -361,6 +376,19 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     # absolute
                     gap_secs <- parse_time_diff(gap.size)
                     tot_new <- as.numeric(tot, units = 'secs') + (npn - 1) * gap_secs
+                }
+
+                # FIXME: check gap.size
+                #           Take minimum of gap sizes to check!
+                if (gap_secs > gap.size.max) {
+                    ig <- check_gap(x, gap.size.max)
+                    if (length(ig)) {
+                        stg <- et(x)[sapply(ig, '[', 1)]
+                        etg <- st(x)[sapply(ig, '[', 2)]
+                        # fix here (issue due to st/et?)
+                        gap_secs <- min(gap_secs, as.numeric(min(etg - stg), units = 'secs'))
+                        tot_new <- as.numeric(tot, units = 'secs') + (npn - 1) * gap_secs
+                    }
                 }
 
                 # extend data
@@ -741,22 +769,36 @@ check_diff <- function(x, max.diff, invert = FALSE, abs.diff = FALSE) {
     }
 }
 
-check_gap <- function(x, delta_t, invert = FALSE) {
+check_gap <- function(x, delta_t, invert = FALSE, na.rm = FALSE) {
     # convert delta_t to seconds
     delta_t <- parse_time_diff(delta_t)
+    # remove NA values
+    if (na.rm) {
+        if (is.null(ncol(x))) {
+            keep <- which(!is.na(x))
+        } else {
+            keep <- which(rowSums(!is.na(x)) > 0)
+        }
+        if (length(keep) == 0) {
+            stop('data only contains NA values')
+        }
+        N <- length(keep)
+    } else {
+        N <- NROW(x)
+        keep <- 1:N
+    }
     # deltas in seconds
-    N <- NROW(x)
-    ds <- as.numeric(attr(x, 'st')[-1] - attr(x, 'et')[-N] , units = 'secs')
+    ds <- as.numeric(attr(x, 'st')[keep][-1] - attr(x, 'et')[keep][-N] , units = 'secs')
     # get indices
     ds_ind <- which(ds > delta_t)
     # invert or not
     if (invert) {
         mapply(seq,
-            c(1, ds_ind + 1),
-            c(ds_ind, N),
+            c(keep[1], keep[ds_ind + 1]),
+            c(keep[ds_ind], keep[length(keep)]),
             SIMPLIFY = FALSE
             )
     } else {
-        lapply(ds_ind, function(x) c(x, x + 1))
+        lapply(ds_ind, function(x) c(keep[x], keep[x + 1]))
     }
 }
