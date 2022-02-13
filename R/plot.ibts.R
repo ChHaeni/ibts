@@ -290,7 +290,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
             x2 <- attr(y, "et")
             xl <- c(x1[1],rev(x2)[1])
             # get pretty dates
-            ptx_lbl <- ptx <- pretty_dates(with_tz(xl,tzone(x)),pret_n)
+            ptx_lbl <- pretty_dates(with_tz(xl,tzone(x)),pret_n)
             if(!is.null(xlim)){
                 if(is.character(xlim)){
                     if(length(xlim)==1){
@@ -303,7 +303,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 } else {
                     xlim <- as.POSIXct(xlim)
                 }
-                ptx <- pretty_dates(xlim,pret_n)
+                ptx_lbl <- pretty_dates(xlim,pret_n)
             }
 
 			if(!is.null(gap.size.max)){
@@ -434,7 +434,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 xl <- c(x1[1],rev(x2)[1])
                 
                 # get ptx
-                ptx <- unlist(lapply(as.numeric(ptx_lbl, units = 'secs'), function(x) {
+                ptx_lbl <- unlist(lapply(as.numeric(ptx_lbl, units = 'secs'), function(x) {
                     ind <- which.min(abs(st_old - x))
                     add <- x - st_old[ind]
                     st_new[ind] + add
@@ -548,14 +548,15 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 					}
 				}
 				if(!is.null(xlab_at)){
-					ptx <- as.numeric(xlab_at, units = "secs")
+					ptx_lbl <- as.numeric(xlab_at, units = "secs")
+                    x_labels <- format(ptx_lbl, xlab_fmt)
 				}
 				if(!is.null(xlab_labels)){
-					axis(1,at=ptx,labels=xlab_labels, lty = if(drawaxes) 1 else 0)
+					axis(1,at=ptx_lbl,labels=xlab_labels, lty = if(drawaxes) 1 else 0)
 				} else if(isFALSE(xlab_fmt)){
-					axis(1,at=ptx,labels=FALSE, lty = if(drawaxes) 1 else 0)
+					axis(1,at=ptx_lbl,labels=FALSE, lty = if(drawaxes) 1 else 0)
 				} else {
-					axis(1,at=ptx,labels=x_labels, lty = if(drawaxes) 1 else 0)
+					axis(1,at=ptx_lbl,labels=x_labels, lty = if(drawaxes) 1 else 0)
 				}
                 if (!is.null(gap.size.max)) {
                     if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
@@ -576,7 +577,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     # abline(v=ptx,col=gridv.col,lty=gridv.lty)
                     # but remove ptx in gaps
                 } else {
-                    abline(v=ptx,col=gridv.col,lty=gridv.lty)
+                    abline(v=ptx_lbl,col=gridv.col,lty=gridv.lty)
                 }
 			}
 			if(!blank){
