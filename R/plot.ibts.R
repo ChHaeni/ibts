@@ -434,11 +434,16 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 xl <- c(x1[1],rev(x2)[1])
                 
                 # get ptx
-                ptx_lbl <- unlist(lapply(as.numeric(ptx_lbl, units = 'secs'), function(x) {
+                timezone <- tz(ptx_lbl)
+                ptx_lbl <- as.POSIXct(
+                    unlist(lapply(as.numeric(ptx_lbl, units = 'secs'), function(x) {
                     ind <- which.min(abs(st_old - x))
                     add <- x - st_old[ind]
                     st_new[ind] + add
-                    }))
+                    })),
+                    tz = timezone,
+                    origin = origin
+                )
 
                 ### TODO: 
                 # fix xlim != NULL
@@ -447,21 +452,21 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 
             if(is.null(xlab_fmt)){
                 # check year
-                if (ysc <- length(unique(year(ptx_lbl))) > 1) {
+                if (ysc <- length(unique(lubridate::year(ptx_lbl))) > 1) {
                     xlab_fmt <- '%Y'
                 } else {
                     xlab_fmt <- ''
                 }
                 # check all month == 1
-                ms1 <- sum(month(ptx_lbl)) == length(ptx_lbl)
+                ms1 <- sum(lubridate::month(ptx_lbl)) == length(ptx_lbl)
                 # check all days == 1
-                ds1 <- sum(day(ptx_lbl)) == length(ptx_lbl)
+                ds1 <- sum(lubridate::day(ptx_lbl)) == length(ptx_lbl)
                 # check all hour == 0
-                Hs0 <- sum(hour(ptx_lbl)) == 0
+                Hs0 <- sum(lubridate::hour(ptx_lbl)) == 0
                 # check all minute == 0
-                Ms0 <- sum(minute(ptx_lbl)) == 0
+                Ms0 <- sum(lubridate::minute(ptx_lbl)) == 0
                 # check all second == 0
-                Ss0 <- sum(second(ptx_lbl)) == 0
+                Ss0 <- sum(lubridate::second(ptx_lbl)) == 0
                 # case other than only years
                 if (!(ms1 && ds1 && Hs0 && Ms0 && Ss0)) {
                     # HM(S) needed?
@@ -479,9 +484,9 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                         }
                     }
                     # month changes
-                    msc <- length(unique(month(ptx_lbl))) > 1
+                    msc <- length(unique(lubridate::month(ptx_lbl))) > 1
                     # day changes
-                    dsc <- length(unique(day(ptx_lbl))) > 1
+                    dsc <- length(unique(lubridate::day(ptx_lbl))) > 1
                     # day format
                     if (!ysc && !msc && !dsc) {
                         # same day
