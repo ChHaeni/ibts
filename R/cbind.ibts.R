@@ -37,7 +37,10 @@ cbind.ibts <- function(...,COL.CLASSES=NULL){
 		stop("number of rows not matching!")
 	}
 	if(any(nms <- arg.names!="")){
-		ArgList[nms] <- mapply(function(x,y)`names<-`(x,sprintf(y,names(x))),ArgList[nms],arg.names[nms],SIMPLIFY=FALSE)
+		ArgList[nms] <- mapply(function(x,y) {
+                names(x) <- y
+                x
+            }, ArgList[nms], arg.names[nms], SIMPLIFY = FALSE)
 	}
 	names(ArgList) <- NULL
 	out <- do.call("cbind.data.frame",ArgList)
