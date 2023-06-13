@@ -36,8 +36,8 @@ function(x,digits=2,Nrows=20,nMargs=6,...){
 		b <- as.numeric(et_x - trunc(et_x[1],"day"),"secs")
 		if(any(a%%60>1E-3) || any(b%%60>1E-3)){
 			if(any((b - a) < 0.999) || any(st_x - trunc(st_x,"sec") > 1E-3)){
-				fmt1 <- "%Y-%m-%d %H:%M:%OS1"
-				fmt2 <- "%H:%M:%OS1"
+				fmt1 <- "%Y-%m-%d %H:%M:%OS3"
+				fmt2 <- "%H:%M:%OS3"
 			} else {
 				fmt1 <- "%Y-%m-%d %H:%M:%S"
 				fmt2 <- "%H:%M:%S"				
