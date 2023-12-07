@@ -7,7 +7,7 @@ function(x,digits=2,Nrows=20,nMargs=6,...){
 		et_x <- attr(x,"et")
 		colClasses_x <- attr(x,"colClasses")
 		coverage <- attr(x, "coverage")
-		x <- as.data.frame(x,check.names=FALSE,stringsAsFactors=FALSE,keepAtts=FALSE)
+		x <- as.data.frame(x,check.names=FALSE,stringsAsFactors=FALSE,keepAtts=FALSE, time_columns = FALSE)
 		
 		if(Cut <- nrow(x)>Nrows & nrow(x) > (nMargs*2 + 1)){
 			t1 <- as.numeric(sum(et_x - st_x),units="secs")
