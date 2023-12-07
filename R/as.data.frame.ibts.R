@@ -1,6 +1,6 @@
 as.data.frame.ibts <-
-function(x, row.names = NULL, optional = FALSE, keepAtts = FALSE, time_columns = TRUE, ...){
-    if (time_columns) {
+function(x, keep_times = FALSE, keepAtts = FALSE, row.names = NULL, optional = FALSE, ...){
+    if (keep_times) {
         x_st <- st(x)
         x_et <- et(x)
         class(x) <- 'data.frame'
@@ -28,11 +28,11 @@ as.data.table <- function (x, keep.rownames = FALSE, ...) {
     }
 }
 as.data.table.ibts <-
-function(x, keep.rownames = FALSE, keepAtts = FALSE, time_columns = TRUE, ...){
+function(x, keep_times = TRUE, keepAtts = FALSE, keep.rownames = FALSE, ...){
     if (!requireNamespace('data.table')) {
         stop('data.table package not installed')
     }
-    if (time_columns) {
+    if (keep_times) {
         x_st <- st(x)
         x_et <- et(x)
         class(x) <- 'data.frame'
