@@ -1,8 +1,8 @@
 Package: ibts
 Type: Package
 Title: Interval-based Time Series
-Version: 1.1-4
-Date: 2023-12-07
+Version: 1.1-5
+Date: 2023-12-08
 Author: Christoph Haeni
 Maintainer: Christoph Haeni <christoph.haeni@bfh.ch>
 Description: Simpler processing of interval data.

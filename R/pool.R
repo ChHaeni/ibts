@@ -95,7 +95,12 @@ pool <- function(dat,granularity=NULL,st.to=NULL,et.to=NULL,closed=attr(dat,"clo
 			} else if(!is.null(na.action(x))){
 				wts <- wts[-na.action(x)]
 			}
-			sum(x*wts) 
+			out <- sum(x*wts) 
+            if (out > 1) {
+                1
+            } else {
+                out
+            }
 		}
 	
 	fuNames <- colClasses
@@ -151,6 +156,7 @@ pool <- function(dat,granularity=NULL,st.to=NULL,et.to=NULL,closed=attr(dat,"clo
 		}
 		coverage_out[,i] <- sapply(bins,function(bM,x){
 			sumBins(bM[,2],x[bM[,1]])
+
 		},x=coverage[,i,drop=TRUE])
 	}
 
