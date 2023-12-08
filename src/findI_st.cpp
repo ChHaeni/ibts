@@ -11,11 +11,11 @@ IntegerVector findI_st(NumericVector x,NumericVector y1,NumericVector y2){
 	int leny = y1.size() - 1;
 	int run = 0;
 
-	for(int i = 0; (i < lenx) & (run <= leny); i++){
+	for(int i = 0; (i < lenx) && (run <= leny); i++){
 		if(x[i] >= y2[leny]){
 			break;
 		}
-		while((y2[run] <= x[i]) & (run <= leny)){
+		while((y2[run] <= x[i]) && (run <= leny)){
 			run += 1;
 		}
 		if(y1[run] <= x[i]){

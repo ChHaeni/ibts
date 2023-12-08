@@ -18,22 +18,22 @@ Rcpp::List cutIntervals(NumericVector x1,NumericVector x2,NumericVector y1,Numer
 
 	for(int i = 0; i < leny; i++){
 		dy12i = y2[i] - y1[i];
-		if((x2[lenx] < y1[i]) | (x1[run] > y2[i])){
+		if((x2[lenx] < y1[i]) || (x1[run] > y2[i])){
 			Out[i] = R_NilValue;
 		} else {
-			while((x2[run] <= y1[i]) & (run < lenx)){
+			while((x2[run] <= y1[i]) && (run < lenx)){
 				run += 1;
 			}
 			i1 = run;
-			if((run <= lenx) & (x1[run] < y1[i])){
+			if((run <= lenx) && (x1[run] < y1[i])){
 				MatOut(run,1) = (min(NumericVector::create(x2[run],y2[i])) - y1[i])/dy12i;
 				run += 1; 
 			}
-			while((run <= lenx) & (x2[run] < y2[i])){
+			while((run <= lenx) && (x2[run] < y2[i])){
 				MatOut(run,1) = (x2[run] - x1[run])/dy12i;
 				run += 1; 
 			}
-			if((run <= lenx) & (x1[run] < y2[i])){
+			if((run <= lenx) && (x1[run] < y2[i])){
 				MatOut(run,1) = (y2[i] - x1[run])/dy12i;
 				run += 1; 
 			}
