@@ -80,9 +80,9 @@ function(x,digits=2,Nrows=20,nMargs=6,...){
 					x2 <- x2temp
 				} else if(is.factor(x2)){
 					x2 <- as.character(x2)
-				} else if(is.POSIXt(x2)){
+				} else if(is.POSIXt(x2) || is.Date(x2)){
 					x2 <- format(x2)
-				}
+                }
 				# x2[is.na(x[,i])] <- "NA"
 				# x2[is.nan(x[,i])] <- "NaN"
 								
@@ -105,7 +105,7 @@ function(x,digits=2,Nrows=20,nMargs=6,...){
 
 		x[,!isfactor][is.na(x[,!isfactor])] <- "NA"
 		if(Cut){
-			x <- rbind(x,rep("----",length(x)),cvrg_str)
+			x <- rbind(x, rep("----", length(x)), cvrg_str)
 			row.names(x)[nrow(x) + c(-1,0)] <- c("   ",paste0("uptime: ",add))
 			hx <- x[seq.int(nMargs),,drop=FALSE]
 			# hx[is.na(hx)] <- "NA"

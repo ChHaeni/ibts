@@ -17,16 +17,6 @@ function(x, keep_times = FALSE, keepAtts = FALSE, row.names = NULL, optional = F
     as.data.frame.data.frame(x, row.names = row.names, optional = optional, ...)
 }
 
-as.data.table <- function (x, keep.rownames = FALSE, ...) {
-    if (!requireNamespace('data.table')) {
-        stop('data.table package not installed')
-    }
-    if (is.ibts(x)) {
-        as.data.table.ibts(x, keep.rownames = keep.rownames, ...)
-    } else {
-        data.table::as.data.table(x, keep.rownames = keep.rownames, ...)
-    }
-}
 as.data.table.ibts <-
 function(x, keep_times = TRUE, keepAtts = FALSE, keep.rownames = FALSE, ...){
     if (!requireNamespace('data.table')) {
