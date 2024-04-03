@@ -1,5 +1,9 @@
 .onLoad <- function(libname, pkgname) {
-	options(time.orders=c("Y","%d.%m.%Y","%d.%m.%y","%d.%m.%Y %H:%M","%d.%m.%y %H:%M","%d.%m.%Y %H:%M:%S","%d.%m.%y %H:%M:%S","Ymd","ymd","YmdHM","ymdHM","YmdHMS","ymdHMS"))
+	options(time.orders = c("%Y", "%d.%m.%Y", "%d.%m.%y", 
+            "%d.%m.%Y %H:%M", "%d.%m.%y %H:%M", "%d.%m.%Y %H:%M:%S", "%d.%m.%y %H:%M:%S", 
+            "%Y-%m-%d", "%y-%m-%d", 
+            "%Y-%m-%d %H:%M", "%y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S", "%y-%m-%d %H:%M:%S"
+            ))
 	options(time.separators=c(" - ","::","/"," to "))
 	options(pooling.functions=list(
 		"avg" = function(x,wts,na.rm,dat){
