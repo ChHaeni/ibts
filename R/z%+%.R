@@ -1,13 +1,37 @@
-"%+%" <- function(x,y){
-	l1 <- length(x)
-	x <- parse_timerange(x,tz="UTC")
-	l2 <- length(x)
-	y <- parse_time_diff(y)
-	if(l1!=l2){
-		mapply(deparse_timerange,x[1] + y,x[2] + y)
-	} else {
-		out <- x + y
-		format(out, tz = "UTC", usetz = FALSE)
-	}
+"%+%" <- function(x, y) {
+    lx <- length(x)
+    ly <- length(y)
+    xp <- lapply(x, parse_timerange, tz = 'UTC')
+    yp <- parse_time_diff(y)
+    if (lx == length(unlist(xp))) {
+        fmt_fun <- function(a) format(a, tz = 'UTC', usetz = FALSE)
+    } else {
+        fmt_fun <- deparse_timerange
+    }
+    if (ly == 1) {
+        unlist(lapply(xp, \(z) fmt_fun(z + yp)))
+    } else if (ly == 2) {
+        unlist(lapply(xp, \(z) fmt_fun(z + yp)))
+    } else {
+        stop('length of second object must be 1 or 2')
+    }
 }
 
+"%-%" <- function(x, y) {
+    lx <- length(x)
+    ly <- length(y)
+    xp <- lapply(x, parse_timerange, tz = 'UTC')
+    yp <- parse_time_diff(y)
+    if (lx == length(unlist(xp))) {
+        fmt_fun <- function(a) format(a, tz = 'UTC', usetz = FALSE)
+    } else {
+        fmt_fun <- deparse_timerange
+    }
+    if (ly == 1) {
+        unlist(lapply(xp, \(z) fmt_fun(z - yp)))
+    } else if (ly == 2) {
+        unlist(lapply(xp, \(z) fmt_fun(z - yp)))
+    } else {
+        stop('length of second object must be 1 or 2')
+    }
+}
