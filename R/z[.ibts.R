@@ -31,6 +31,10 @@
                         ind0 <- unlist(strsplit(indx, seps))
                         # check "new" formats here (01.01.2023 16:00 to 17:00; 16:00 to 17:00)
                         ind <- parse_date_time3(ind0, tz = tz, quiet = TRUE)
+                        if (length(ind) == 2 && is.na(ind[2])) {
+                            ind[2] <- parse_date_time3(paste(date(ind[1]), ind0[2]), tz = tz, 
+                                quiet = TRUE)
+                        }
                         a <- which(et_index > ind[1]) [1]
                         b <- rev(which(st_index < ind[2])) [1]
                         if (is.na(a) && ind0[1] == "") {
