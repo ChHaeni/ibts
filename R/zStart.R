@@ -4,7 +4,7 @@
             "%Y-%m-%d", "%y-%m-%d", 
             "%Y-%m-%d %H:%M", "%y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S", "%y-%m-%d %H:%M:%S"
             ))
-	options(time.separators=c(" - ","::","/"," to "))
+	options(time.separators=c(" - ","::","/","to"))
 	options(pooling.functions=list(
 		"avg" = function(x,wts,na.rm,dat){
 			if(na.rm){
