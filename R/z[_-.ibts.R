@@ -47,19 +47,19 @@
 			if (any(split_char)) {
 				i_list[split_char] <- lapply(i[split_char], 
                     function(indx, tz, st_index, et_index) {
-                        ind0 <- unlist(strsplit(indx, seps))
+                        ind0 <- trimws(unlist(strsplit(indx, seps)))
                         # add new formats here
                         ind <- parse_date_time3(ind0, tz = tz, quiet = TRUE)
-                        if (length(ind) == 2 && is.na(ind[2])) {
+                        if (length(ind) == 2 && is.na(ind[2]) && ind[2] != '') {
                             ind[2] <- parse_date_time3(paste(date(ind[1]), ind0[2]), tz = tz, 
                                 quiet = TRUE)
                         }
                         a <- which(et_index > ind[1])[1]
                         b <- rev(which(st_index < ind[2]))[1]
-                        if (is.na(a) && ind0[1] == "") {
+                        if (is.na(a) && ind0[1] == '') {
                             a <- 1
                         }
-                        if (is.na(b) && length(ind) == 1) {
+                        if (is.na(b) && (length(ind0) == 1 || ind0[2] == '')) {
                             b <- length(st_index)
                         }
                         if (any(is.na(a), is.na(b))) {
