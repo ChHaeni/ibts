@@ -50,7 +50,7 @@
                         ind0 <- trimws(unlist(strsplit(indx, seps)))
                         # add new formats here
                         ind <- parse_date_time3(ind0, tz = tz, quiet = TRUE)
-                        if (length(ind) == 2 && is.na(ind[2]) && ind[2] != '') {
+                        if (length(ind) == 2 && is.na(ind[2]) && ind0[2] != '') {
                             ind[2] <- parse_date_time3(paste(date(ind[1]), ind0[2]), tz = tz, 
                                 quiet = TRUE)
                         }
