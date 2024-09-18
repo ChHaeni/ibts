@@ -197,7 +197,8 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	}
 
 	# remove st/et columns:
-	x <- x[,!(names(x) %in% remove_cols),drop=FALSE]
+	x <- x[, !(names(x) %in% remove_cols), drop = FALSE]
+    coverage <- coverage[, !(colnames(coverage) %in% remove_cols), drop = FALSE]
 
 	# set attributes:
 	attr(x, "st") <- st_index
@@ -205,8 +206,8 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	attr(x, "tzone") <- tz
 	attr(x, "colClasses") <- colClasses
 	attr(x, "coverage") <- coverage
-	attr(x,"closed") <- closed
-	attr(x,"class") <- c("ibts",class(x))
+	attr(x, "closed") <- closed
+	attr(x, "class") <- c("ibts", class(x))
 	
 	# check names & return:
 	check_names(x)
