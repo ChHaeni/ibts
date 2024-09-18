@@ -184,10 +184,16 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
     x <- x[ind, , drop = FALSE]
 
 	# strictly increasing?
-	if (any(as.numeric(diff(st_index), units = "secs") <= 0) ||
-		any(as.numeric(et_index - st_index, units = "secs") <= 0) ||
-		any(as.numeric(et_index[-length(et_index)] - st_index[-1], units = "secs") > 0)) {
-		stop("interval times failure!")
+	if (any(check1 <- as.numeric(diff(st_index), units = "secs") <= 0) ||
+		any(check2 <- as.numeric(et_index - st_index, units = "secs") <= 0) ||
+		any(check3 <- as.numeric(et_index[-length(et_index)] - st_index[-1], units = "secs") > 0)) {
+        if (any(check1)) {
+            stop("interval times failure! -> diff(st) == 0")
+        } else if (any(check2)) {
+            stop("interval times failure! -> et - st <= 0")
+        } else {
+            stop("interval times failure! -> difference st to previous et < 0")
+        }
 	}
 
 	# remove st/et columns:
