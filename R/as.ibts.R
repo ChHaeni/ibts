@@ -1,6 +1,10 @@
 
 # generic
-as.ibts <- function(x,...)UseMethod("as.ibts")
+as.ibts <- function(x, st = "st", et = "et", 
+    colClasses = ifelse(sapply(x, is.numeric), "avg", "other"), tz = NULL, 
+	format = NULL, granularity = NULL, coverage = NULL, closed = "st", ...) {
+    UseMethod('as.ibts')
+}
 
 # default
 as.ibts.default <- function(x,...){
@@ -34,8 +38,8 @@ as.ibts.data.table <- function(x,check.names=FALSE,...){
 }
 
 # data.frame
-as.ibts.data.frame <- function(x,st="st",et="et",colClasses=ifelse(sapply(x,is.numeric),"avg","other"),tz=NULL,
-	format=NULL,granularity=NULL,coverage=NULL,closed="st",...){
+as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapply(x, is.numeric), "avg", "other"), tz = NULL, 
+	format = NULL, granularity = NULL, coverage = NULL, closed = "st", ...) {
 	
 	remove_cols <- character(2)
 	if(is.null(format)){
