@@ -160,16 +160,6 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	st_index <- with_tz(st_index,tz)
 	et_index <- with_tz(et_index,tz)
 
-	# strictly increasing?
-	if(any(as.numeric(diff(st_index),units="secs")<=0)|
-		any(as.numeric(et_index-st_index,units="secs")<=0)|
-		any(as.numeric(et_index[-length(et_index)]-st_index[-1],units="secs")>0)){
-		stop("interval times failure!")
-	}
-
-	# remove st/et columns:
-	x <- x[,!(names(x) %in% remove_cols),drop=FALSE]
-
     # add coverage
 	if(is.null(coverage)){
 		coverage <- matrix(1L,ncol=length(x),nrow=length(st_index))
@@ -187,6 +177,19 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 		warning("NA values in time indices: Removed ",length(isna)," entries!")
 	}
 	
+    # sort by st_index
+    ind <- order(st_index)
+
+	# strictly increasing?
+	if(any(as.numeric(diff(st_index),units="secs")<=0)|
+		any(as.numeric(et_index-st_index,units="secs")<=0)|
+		any(as.numeric(et_index[-length(et_index)]-st_index[-1],units="secs")>0)){
+		stop("interval times failure!")
+	}
+
+	# remove st/et columns:
+	x <- x[,!(names(x) %in% remove_cols),drop=FALSE]
+
 	# set attributes:
 	attr(x, "st") <- st_index
 	attr(x, "et") <- et_index
