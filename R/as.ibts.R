@@ -170,6 +170,13 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	# remove st/et columns:
 	x <- x[,!(names(x) %in% remove_cols),drop=FALSE]
 
+    # add coverage
+	if(is.null(coverage)){
+		coverage <- matrix(1L,ncol=length(x),nrow=length(st_index))
+		colnames(coverage) <- names(x)
+		coverage[is.na(x)] <- 0L		
+	}
+
 	# remove NA values in st/et:
 	if(anyNA(st_index)|anyNA(et_index)){
 		isna <- unique(which(c(is.na(st_index),is.na(et_index))))
@@ -185,11 +192,6 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	attr(x, "et") <- et_index
 	attr(x, "tzone") <- tz
 	attr(x, "colClasses") <- colClasses
-	if(is.null(coverage)){
-		coverage <- matrix(1L,ncol=length(x),nrow=length(st_index))
-		colnames(coverage) <- names(x)
-		coverage[is.na(x)] <- 0L		
-	}
 	attr(x, "coverage") <- coverage
 	attr(x,"closed") <- closed
 	attr(x,"class") <- c("ibts",class(x))
