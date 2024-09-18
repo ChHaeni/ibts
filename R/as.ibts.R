@@ -179,6 +179,9 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	
     # sort by st_index
     ind <- order(st_index)
+    st_index <- st_index[ind]
+    et_index <- et_index[ind]
+    x <- x[ind, , drop = FALSE]
 
 	# strictly increasing?
 	if (any(as.numeric(diff(st_index), units = "secs") <= 0) ||
