@@ -1,6 +1,13 @@
-pool <- function(dat,granularity=NULL,st.to=NULL,et.to=NULL,closed=attr(dat,"closed"),format=NULL
-	,tz=NULL,na.rm=TRUE,FUN=NULL){
+# generic
+pool <- function(dat, granularity = NULL, st.to = NULL, et.to = NULL, 
+    closed = attr(dat, "closed"), format = NULL , tz = NULL, na.rm = TRUE, 
+    FUN = NULL, ...) {
+    UseMethod('pool')
+}
 
+# ibts
+pool.ibts <- function(dat, granularity = NULL, st.to = NULL, et.to = NULL, 
+    closed = attr(dat, "closed"), format = NULL , tz = NULL, na.rm = TRUE, FUN = NULL) {
 	if(is.null(dat)){
 		return(NULL)
 	}
@@ -164,4 +171,40 @@ pool <- function(dat,granularity=NULL,st.to=NULL,et.to=NULL,closed=attr(dat,"clo
 	names(out) <- cn
 	out <- as.ibts.data.frame(out,st.to,et.to,colClasses,closed=closed,coverage=coverage_out)
 	return(out)
+}
+
+# pool data.table
+pool.data.table <- function(dat, granularity = NULL, st.to = NULL, 
+    et.to = NULL, closed = 'st', format = NULL, tz = NULL, na.rm = TRUE, 
+    FUN = NULL, to.ibts.format = format, to.ibts.tz = tz,
+    by = NULL, st = 'st', et = 'et', ...) {
+    if (is.null(by)) {
+        num <- sapply(dat, is.numeric)
+        # fix st/et columns
+        num[c(st, et)] <- TRUE
+        if (any(!num)) {
+            by <- names(dat)[!num]
+        }
+    }
+    if (is.null(by)) {
+        out <- pool(
+            as.ibts(dat, closed = closed, format = to.ibts.format, 
+                tz = to.ibts.tz, ...), 
+            granularity = granularity, st.to = st.to, et.to = et.to,
+            closed = closed, format = format, tz = tz, na.rm = na.rm,
+            FUN = FUN
+        )
+        as.data.table(out)
+    } else {
+        dat[, {
+            out <- pool(
+                as.ibts(.SD, closed = closed, format = to.ibts.format, 
+                    tz = to.ibts.tz, ...), 
+                granularity = granularity, st.to = st.to, et.to = et.to,
+                closed = closed, format = format, tz = tz, na.rm = na.rm,
+                FUN = FUN
+            )
+            as.data.table(out)
+        }, by = by]
+    }
 }
