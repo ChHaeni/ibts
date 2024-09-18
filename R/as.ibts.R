@@ -64,7 +64,7 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	}
 	
 	# get st_index:
-	if(is.null(granularity)|!missing(st)){
+	if (is.null(granularity) || !missing(st)) {
 		if(is.character(st)){
 			if(length(st)==1){
 				st_index <- try(x[,st],silent = TRUE)
@@ -108,7 +108,7 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	}
 
 	# get et_index:
-	if(is.null(granularity)|!missing(et)){
+	if (is.null(granularity) || !missing(et)) {
 		if(is.character(et)){
 			if(length(et)==1){
 				et_index <- try(x[,et],silent = TRUE)
@@ -168,22 +168,22 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
 	}
 
 	# remove NA values in st/et:
-	if(anyNA(st_index)|anyNA(et_index)){
-		isna <- unique(which(c(is.na(st_index),is.na(et_index))))
+	if (anyNA(st_index) || anyNA(et_index)) {
+		isna <- unique(which(c(is.na(st_index), is.na(et_index))))
 		st_index <- st_index[-isna]
 		et_index <- et_index[-isna]
-		coverage <- coverage[-isna,,drop=FALSE]
-		x <- x[-isna,,drop=FALSE]
-		warning("NA values in time indices: Removed ",length(isna)," entries!")
+		coverage <- coverage[-isna, , drop = FALSE]
+		x <- x[-isna, , drop = FALSE]
+		warning("NA values in time indices: Removed ", length(isna), " entries!")
 	}
 	
     # sort by st_index
     ind <- order(st_index)
 
 	# strictly increasing?
-	if(any(as.numeric(diff(st_index),units="secs")<=0)|
-		any(as.numeric(et_index-st_index,units="secs")<=0)|
-		any(as.numeric(et_index[-length(et_index)]-st_index[-1],units="secs")>0)){
+	if (any(as.numeric(diff(st_index), units = "secs") <= 0) ||
+		any(as.numeric(et_index - st_index, units = "secs") <= 0) ||
+		any(as.numeric(et_index[-length(et_index)] - st_index[-1], units = "secs") > 0)) {
 		stop("interval times failure!")
 	}
 
