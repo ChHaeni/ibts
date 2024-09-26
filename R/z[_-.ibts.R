@@ -50,7 +50,33 @@
                         ind0 <- trimws(unlist(strsplit(indx, seps)))
                         # add new formats here
                         ind <- parse_date_time3(ind0, tz = tz, quiet = TRUE)
-                        if (length(ind) == 2 && is.na(ind[2]) && ind0[2] != '') {
+                        if (length(ind) == 2 && all(is.na(ind))) {
+                            # get st dates
+                            st_ud <- unique(date(st_index))
+                            # check following day
+                            st_1 <- parse_date_time3(paste(st_ud[1], ind0[1]), tz = tz)
+                            et_1 <- parse_date_time3(paste(st_ud[1], ind0[2]), tz = tz)
+                            if (any(is.na(st_1), is.na(et_1))) {
+                                stop('Cannot parse provided time range')
+                            }
+                            add_day <- as.integer(st_1 > et_1)
+                            # get starts/ends
+                            starts <- lapply(st_ud, \(x) {
+                                parse_date_time3(paste(x, ind0[1]), tz = tz)
+                            })
+                            ends <- lapply(st_ud, \(x) {
+                                parse_date_time3(paste(x + add_day, ind0[2]), tz = tz)
+                            })
+                            # get indices
+                            out <- mapply(\(s, e) {
+                                    which(et_index > s & st_index < e)
+                                }, 
+                                s = as.POSIXct(unlist(starts), origin = POSIXct(1)),
+                                e = as.POSIXct(unlist(ends), origin = POSIXct(1)),
+                                SIMPLIFY = FALSE
+                            )
+                            return(unlist(out))
+                        } else if (length(ind) == 2 && is.na(ind[2]) && ind0[2] != '') {
                             ind[2] <- parse_date_time3(paste(date(ind[1]), ind0[2]), tz = tz, 
                                 quiet = TRUE)
                         }
