@@ -1,9 +1,9 @@
 plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NULL, 
 	ylim = NULL, min.coverage = 0.75, add = FALSE, xlab = "", ylab = NULL, 
-	blank = (!is.null(type) && type == "n"), type = NULL,
-	lty = 1, col = 1, lwd = 1, lty.v = lty, col.v = col, lwd.v = lwd,
-	grid.col = "lightgrey", grid.lty = 3, gridv.col = grid.col, ylim2 = NULL, 
-	col2 = "grey", lty2 = lty, lwd2 = lwd, lty.v2 = lty2, col.v2 = col2,
+	blank = (!is.null(type) && type == "n"), type = NULL, primary.labels = NULL,
+	secondary.labels = NULL, lty = 1, col = 1, lwd = 1, lty.v = lty, col.v = col, 
+    lwd.v = lwd, grid.col = "lightgrey", grid.lty = 3, gridv.col = grid.col, 
+    ylim2 = NULL, col2 = "grey", lty2 = lty, lwd2 = lwd, lty.v2 = lty2, col.v2 = col2,
 	lwd.v2 = lwd2, type2 = NULL, ylab2 = NULL, gap.size.max = NULL, gap.size = 0.02,
     gap.line.col = 'black', gap.line.lty = 3, gap.break.bgcol = 'white', 
     gap.break.breakcol = 'black', gap.break.style = c('zigzag', 'slash', 'gap')[1],
@@ -306,6 +306,23 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                 ptx_lbl <- pretty_dates(xlim,pret_n)
             }
 
+            if (!is.null(primary.labels)) {
+                xl1 <- if (is.null(xlim)) xl else xlim
+                dtime <- parse_time_diff(primary.labels)
+                xl2 <- with_tz(xl1, tzone(x))
+                xl2[1] <- ceiling_time(xl2[1], primary.labels)
+                xl2[2] <- floor_time(xl2[2], primary.labels)
+                ptx_lbl <- seq(xl2[1], xl2[2], by = dtime)
+            }
+            if (!is.null(secondary.labels)) {
+                xl1 <- if (is.null(xlim)) xl else xlim
+                dtime <- parse_time_diff(secondary.labels)
+                xl2 <- with_tz(xl1, tzone(x))
+                xl2[1] <- ceiling_time(xl2[1], secondary.labels)
+                xl2[2] <- floor_time(xl2[2], secondary.labels)
+                ptx2_lbl <- seq(xl2[1], xl2[2], by = dtime)
+            }
+
 			if(!is.null(gap.size.max)){
 				gap.size.max <- parse_time_diff(gap.size.max)
 				
@@ -556,6 +573,9 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 					ptx_lbl <- as.numeric(xlab_at, units = "secs")
                     x_labels <- format(ptx_lbl, xlab_fmt)
 				}
+                if (!is.null(secondary.labels)) {
+                    axis(1, at = ptx2_lbl, labels = FALSE, lwd = 0, lwd.ticks = 1, tcl = -0.2)
+                }
 				if(!is.null(xlab_labels)){
 					axis(1,at=ptx_lbl,labels=xlab_labels, lty = if(drawaxes) 1 else 0)
 				} else if(isFALSE(xlab_fmt)){
