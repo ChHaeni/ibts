@@ -196,7 +196,9 @@ pool.data.table <- function(dat, granularity = NULL, st.to = NULL,
         )
         as.data.table(out)
     } else {
-        dat[, {
+        old_order <- names(dat)
+        out <- dat[, {
+            cls <- sapply(.SD, \(x) class(x)[[1]])
             out <- pool(
                 as.ibts(.SD, closed = closed, format = to.ibts.format, 
                     tz = to.ibts.tz, ...) %>=cNA% min.coverage, 
@@ -204,7 +206,15 @@ pool.data.table <- function(dat, granularity = NULL, st.to = NULL,
                 closed = closed, format = format, tz = tz, na.rm = na.rm,
                 FUN = FUN
             )
+            cls_new <- sapply(out, \(x) class(x)[1])
+            if (!all(check <- mapply('==', cls[names(cls_new)], cls_new))) {
+                for (i in names(check)[!check]) {
+                    fun <- get(paste0('as.', cls[[i]]), mode = 'function')
+                    out[, i] <- fun(out[[i]])
+                }
+            }
             as.data.table(out)
         }, by = by]
+        setcolorder(out, old_order)
     }
 }
