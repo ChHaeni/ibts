@@ -177,7 +177,7 @@ pool.ibts <- function(dat, granularity = NULL, st.to = NULL, et.to = NULL,
 pool.data.table <- function(dat, granularity = NULL, st.to = NULL, 
     et.to = NULL, closed = 'st', format = NULL, tz = NULL, na.rm = TRUE, 
     FUN = NULL, to.ibts.format = format, to.ibts.tz = tz,
-    by = NULL, min.coverage = 1, st = 'st', et = 'et', ...) {
+    by = NULL, min.coverage = 1, ...) {
     if (is.null(by)) {
         num <- sapply(dat, is.numeric)
         # fix st/et columns
