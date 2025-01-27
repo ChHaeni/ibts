@@ -1,4 +1,12 @@
 
+# v1.3-0
+- allow self referencing using '.' inside i => e.g. my_ibts[.$my_col > 0, ]
+- allow dropping the date in subsetting, if time range is within the same day
+- add min.coverage argument to `pool` function
+- add experimental pool function for data.table objects
+- minor fixes and and error message improvements
+- move arguments to generic `as.ibts` function
+
 # v1.2-1
 - Fix miliseconds indication
 
