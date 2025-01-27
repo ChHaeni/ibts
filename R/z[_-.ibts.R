@@ -39,7 +39,14 @@
 				neg <- FALSE
 			}			
 		}
-
+        # allow selfreference through '.'
+        if (!isTRUE(try(is.character(i), silent = TRUE)) && any(grepl('^[.]', cl_i))) {
+            ._char <- deparse(sys.call()[-1])
+            ._name <- sub('[(].*[)]$', '', ._char)
+            ._call <- gsub('[.]', ._name, deparse(cl_i))
+            cl_i <- str2lang(._call)
+            i <- eval(cl_i)
+        }
 		if (is.character(i)) {
 			seps <-  paste0("(", paste(getOption("time.separators"), collapse = "|"), "){1}")
 			split_char <- grepl(seps, i)
