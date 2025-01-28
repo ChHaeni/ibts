@@ -58,6 +58,10 @@
                         # add new formats here
                         ind <- parse_date_time3(ind0, tz = tz, quiet = TRUE)
                         if (length(ind) == 2 && all(is.na(ind))) {
+                            # fix empty range
+                            if (all(ind0 == '')) {
+                                return(1:length(st_index))
+                            }
                             # get st dates
                             st_ud <- unique(date(st_index))
                             # check following day
