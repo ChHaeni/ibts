@@ -1,5 +1,6 @@
 
 # v*
+- fix pooling to lower granularity without providing st.to/et.to
 - fix subsetting by empty range, e.g. ' to '
 
 # v1.3-0
