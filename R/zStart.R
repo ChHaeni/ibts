@@ -25,7 +25,7 @@
 			if(length(x)==0){
 				NA
 			} else {
-				sqrt(sum(x^2*wts^2))/sum(wts)
+				sqrt(sum(x ^ 2 * wts ^ 2) / sum(wts ^ 2))
 			}
 		}
 		,"sum" = function(x,wts,na.rm,dat,dt_in,dt_out){
@@ -107,7 +107,7 @@
 			if(length(x)==0){
 				NA
 			} else {
-				sqrt(sum(x^2*wts^2))/sum(wts)
+				sqrt(sum(x ^ 2 * wts ^ 2) / sum(wts ^ 2))
 			}
 		}
 		,"other" = function(x,wts,na.rm,dat){
