@@ -52,64 +52,31 @@ pool.ibts <- function(dat, granularity = NULL, st.to = NULL, et.to = NULL,
 			} else {
 				st.to <- with_tz(st.to,tz)
 			}
-			if(length(st.to)==1) st.to <- st.to + unique(floor(as.numeric(st_in - st.to,units="secs")/granularity)*granularity)
-			et.to <- st.to +  granularity
+			if (length(st.to) == 1) {
+                st1 <- st.to + floor(as.numeric(st_in[1] - st.to, units = 'secs') / granularity) * granularity
+                st2 <- st.to + floor(as.numeric(st_in[length(st_in)] - st.to, units = 'secs') / granularity) * granularity
+                st.to <- seq(st1, st2, by = granularity)
+            }
+			et.to <- st.to + granularity
 		} else if(is.null(st.to)&&!is.null(et.to)){
 			if(is.character(et.to)){
 				et.to <- parse_date_time3(et.to,orders=format,tz=tz)
 			} else {
 				et.to <- with_tz(et.to,tz)
 			}
-			if(length(et.to)==1) et.to <- et.to + unique(floor(as.numeric(et_in - et.to,units="secs")/granularity)*granularity)
-			st.to <- et.to -  granularity
+			if (length(et.to) == 1) {
+                et1 <- et.to + floor(as.numeric(et_in[1] - et.to, units = 'secs') / granularity) * granularity
+                et2 <- et.to + floor(as.numeric(et_in[length(et_in)] - et.to, units = 'secs') / granularity) * granularity
+                et.to <- seq(et1, et2, by = granularity)
+            }
+			st.to <- et.to - granularity
 		} else {
 			if (is.null(granularity)) {
                 stop("please supply information on pooling intervals!")
             }
-            old_granularity <- as.numeric(et_in - st_in, 'secs')
-            # fix granularity < old granularity
-            if (any(old_granularity > granularity)) {
-                st_current <- st.to <- st_in[1]
-                et_current <- et.to <- st_in[1] + granularity
-                n_in <- length(st_in)
-                for (i in seq_len(n_in - 1)) {
-                    # loop over interval until reaching et
-                    while (et_current <= (et_in[i] - granularity)) {
-                        # update st.to/et.to
-                        st_current <- st_current + granularity
-                        et_current <- et_current + granularity
-                        st.to <- c(st.to, st_current)
-                        et.to <- c(et.to, et_current)
-                    }
-                    # check overlapping or end
-                    if (as.numeric(st_in[i + 1] - et_current, 
-                            units = 'secs') <= granularity) {
-                        # add overlapping interval & continue there
-                        st_current <- st_current + granularity
-                        et_current <- et_current + granularity
-                        st.to <- c(st.to, st_current)
-                        et.to <- c(et.to, et_current)
-                    } else {
-                        # update st current to beginning of next interval
-                        st_current <- st_in[i + 1]
-                        et_current <- st_current + granularity
-                        st.to <- c(st.to, st_current)
-                        et.to <- c(et.to, et_current)
-                    }
-                }
-                # process last inteval
-                while (et_current < et_in[i + 1]) {
-                    # update st.to/et.to
-                    st_current <- st_current + granularity
-                    et_current <- et_current + granularity
-                    st.to <- c(st.to, st_current)
-                    et.to <- c(et.to, et_current)
-                }
-            } else {
-                st.to <- st_in[1] + unique(floor(as.numeric(st_in - st_in[1], 
-                            units = "secs") / granularity) * granularity)
-                et.to <- st.to + granularity
-            }
+            st2 <- st_in[1] + floor(as.numeric(st_in[length(st_in)] - st_in[1], units = 'secs') / granularity) * granularity
+            st.to <- seq(st_in[1], st2, by = granularity)
+            et.to <- st.to + granularity
 		}
 	} else {
 		st.to <- with_tz(attr(granularity,"st"),tz)
