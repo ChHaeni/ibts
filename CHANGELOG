@@ -1,5 +1,8 @@
 
 # v*
+
+# v1.3-2
+- fix pooling to lower granularity (finally)
 - fix SE pooling functions
 
 # v1.3-1
