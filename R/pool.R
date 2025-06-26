@@ -188,19 +188,17 @@ pool.ibts <- function(dat, granularity = NULL, st.to = NULL, et.to = NULL,
 pool.data.table <- function(dat, granularity = NULL, st.to = NULL, 
     et.to = NULL, closed = 'st', format = NULL, tz = NULL, na.rm = TRUE, 
     FUN = NULL, to.ibts.format = format, to.ibts.tz = tz,
-    by = NULL, min.coverage = 1, ...) {
-    if (is.null(by)) {
-        num <- sapply(dat, is.numeric)
-        # fix st/et columns
-        num[c(st, et)] <- TRUE
-        if (any(!num)) {
-            by <- names(dat)[!num]
+    by = NULL, min.coverage = 1, st = 'st', et = 'et', ...) {
+    if (!is.null(by) && is.na(by)) {
+        excl <- sapply(dat, \(x) is.numeric(x) || is.POSIXt(x))
+        if (any(!excl)) {
+            by <- names(dat)[!excl]
         }
     }
-    if (is.null(by)) {
+    if (length(by) <= 1 && (is.null(by) || is.na(by))) {
         out <- pool(
             as.ibts(dat, closed = closed, format = to.ibts.format, 
-                tz = to.ibts.tz, ...) %>=cNA% min.coverage, 
+                tz = to.ibts.tz, st = st, et = et, ...) %>=cNA% min.coverage, 
             granularity = granularity, st.to = st.to, et.to = et.to,
             closed = closed, format = format, tz = tz, na.rm = na.rm,
             FUN = FUN
@@ -212,7 +210,7 @@ pool.data.table <- function(dat, granularity = NULL, st.to = NULL,
             cls <- sapply(.SD, \(x) class(x)[[1]])
             out <- pool(
                 as.ibts(.SD, closed = closed, format = to.ibts.format, 
-                    tz = to.ibts.tz, ...) %>=cNA% min.coverage, 
+                    tz = to.ibts.tz, st = st, et = et, ...) %>=cNA% min.coverage, 
                 granularity = granularity, st.to = st.to, et.to = et.to,
                 closed = closed, format = format, tz = tz, na.rm = na.rm,
                 FUN = FUN
