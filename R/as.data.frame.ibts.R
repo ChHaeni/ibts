@@ -4,7 +4,7 @@ function(x, keep_times = FALSE, keepAtts = FALSE, row.names = NULL, optional = F
         x_st <- st(x)
         x_et <- et(x)
         class(x) <- 'data.frame'
-        x <- cbind.data.frame(x, st = x_st, et = x_et)
+        x <- cbind.data.frame(st = x_st, et = x_et, x)
     }
 	if(!keepAtts){
 		attr(x,"st") <- NULL
@@ -26,7 +26,7 @@ function(x, keep_times = TRUE, keepAtts = FALSE, keep.rownames = FALSE, ...){
         x_st <- st(x)
         x_et <- et(x)
         class(x) <- 'data.frame'
-        x <- cbind.data.frame(x, st = x_st, et = x_et)
+        x <- cbind.data.frame(st = x_st, et = x_et, x)
     }
 	if(!keepAtts){
 		attr(x,"st") <- NULL
