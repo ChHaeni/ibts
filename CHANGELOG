@@ -1,5 +1,7 @@
 
 # v*
+- improve pooling of data.table
+- move times to "front" in ibts <-> data.table/frame conversion
 
 # v1.3-2
 - fix pooling to lower granularity (finally)
