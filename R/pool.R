@@ -193,9 +193,11 @@ pool.data.table <- function(dat, granularity = NULL, st.to = NULL,
         excl <- sapply(dat, \(x) is.numeric(x) || is.POSIXt(x))
         if (any(!excl)) {
             by <- names(dat)[!excl]
+        } else {
+            by <- NULL
         }
     }
-    if (length(by) <= 1 && (is.null(by) || is.na(by))) {
+    if (is.null(by)) {
         out <- pool(
             as.ibts(dat, closed = closed, format = to.ibts.format, 
                 tz = to.ibts.tz, st = st, et = et, ...) %>=cNA% min.coverage, 
@@ -206,11 +208,13 @@ pool.data.table <- function(dat, granularity = NULL, st.to = NULL,
         as.data.table(out)
     } else {
         old_order <- names(dat)
+        st_col <- st
+        et_col <- et
         out <- dat[, {
             cls <- sapply(.SD, \(x) class(x)[[1]])
             out <- pool(
                 as.ibts(.SD, closed = closed, format = to.ibts.format, 
-                    tz = to.ibts.tz, st = st, et = et, ...) %>=cNA% min.coverage, 
+                    tz = to.ibts.tz, st = st_col, et = et_col, ...) %>=cNA% min.coverage, 
                 granularity = granularity, st.to = st.to, et.to = et.to,
                 closed = closed, format = format, tz = tz, na.rm = na.rm,
                 FUN = FUN
