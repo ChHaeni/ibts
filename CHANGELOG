@@ -1,5 +1,6 @@
 
 # v*
+- fix %+% & %-% always providing a time range
 - improve pooling of data.table
 - move times to "front" in ibts <-> data.table/frame conversion
 
