@@ -155,7 +155,9 @@
 		st_index <- st_index[i]
 		et_index <- et_index[i]
 	}
-	xout <- "[.data.frame"(x, i, j, drop)
+    # drop possible names in names causing issues
+    names(x) <- c(names(x), use.names = FALSE)
+	xout <- "[.data.frame"(as.data.frame(x), i, j, drop)
 
 	if (keepAtts) {
 		attr(xout, "st") <- st_index
@@ -164,7 +166,8 @@
 		attr(xout, "coverage") <- attr(x, "coverage")[i, j, drop = FALSE]
 		attr(xout, "tzone") <- attr(x, "tzone")
 		attr(xout, "closed") <- x_closed
-	}
+        class(xout) <- c('ibts', 'data.frame')
+    } 
 	xout
 }
 
