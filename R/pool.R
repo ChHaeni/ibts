@@ -189,7 +189,7 @@ pool.data.table <- function(dat, granularity = NULL, st.to = NULL,
     et.to = NULL, closed = 'st', format = NULL, tz = NULL, na.rm = TRUE, 
     FUN = NULL, to.ibts.format = format, to.ibts.tz = tz,
     by = NULL, min.coverage = 1, st = 'st', et = 'et', ...) {
-    if (!is.null(by) && is.na(by)) {
+    if (!is.null(by) && length(by) == 1 && is.na(by)) {
         excl <- sapply(dat, \(x) is.numeric(x) || is.POSIXt(x))
         if (any(!excl)) {
             by <- names(dat)[!excl]
