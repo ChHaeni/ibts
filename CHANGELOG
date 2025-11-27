@@ -1,6 +1,12 @@
 
+
 # v*
+
+# v1.3-4
+- several fixes
 - fix %+% & %-% always providing a time range
+
+# v1.3-3
 - improve pooling of data.table
 - move times to "front" in ibts <-> data.table/frame conversion
 
