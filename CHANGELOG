@@ -1,6 +1,7 @@
 
 
-# v*
+# v1.3-5
+- Fix c.POSIXct and add c.POSIXlt
 
 # v1.3-4
 - several fixes
