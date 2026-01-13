@@ -166,7 +166,7 @@
 		attr(xout, "coverage") <- attr(x, "coverage")[i, j, drop = FALSE]
 		attr(xout, "tzone") <- attr(x, "tzone")
 		attr(xout, "closed") <- x_closed
-        class(xout) <- c('ibts', 'data.frame')
+        if (!drop) class(xout) <- c('ibts', 'data.frame')
     } 
 	xout
 }
