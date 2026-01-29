@@ -1,6 +1,19 @@
 
 shinyCompare <- function(...,d_t=NULL,type=NULL,min.coverage=0.5){
-	require(shiny)
+
+    if(!requireNamespace("shiny", quietly = TRUE)){
+		stop("package 'shiny' is missing - please install the package by running install.packages('shiny')")
+    }
+    if(!requireNamespace("deming", quietly = TRUE)){
+		stop("package 'deming' is missing - please install the package by running install.packages('deming')")
+    }
+    if(!requireNamespace("robustbase", quietly = TRUE)){
+		stop("package 'robustbase' is missing - please install the package by running install.packages('robustbase')")
+    }
+    if(!requireNamespace("MASS", quietly = TRUE)){
+        stop("package 'MASS' is missing - please install the package by running install.packages('MASS')")
+    }
+
 	cat("\nThis might take a while!!!\n")
 	dots <- list(...)
 	nms0 <- names(dots)

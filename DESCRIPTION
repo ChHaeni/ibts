@@ -1,13 +1,13 @@
 Package: ibts
 Type: Package
 Title: Interval-based Time Series
-Version: 1.3-5
-Date: 2026-01-13
+Version: 1.3-6
+Date: 2026-01-29
 Author: Christoph Haeni
 Maintainer: Christoph Haeni <christoph.haeni@bfh.ch>
 Description: Simpler processing of interval data.
 License: GPL (>= 2)
 Depends: lubridate, R (>= 3.0.0)
-Imports: Rcpp, xts, deming, shiny, MASS, robustbase, plotrix
-Suggests: data.table
+Imports: Rcpp, xts
+Suggests: data.table, deming, shiny, MASS, robustbase, plotrix
 LinkingTo: Rcpp
