@@ -44,7 +44,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, devtools, data.table=?ignore, deming=?ignore, shiny=?ignore, plotrix=?ignore, robustbase=?ignore
+          extra-packages: any::rcmdcheck, devtools, deming=?ignore, plotrix=?ignore, robustbase=?ignore
           needs: check
 
       - name: Build R package
