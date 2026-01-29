@@ -92,7 +92,8 @@ importFrom("stats", "as.formula", "coef", "cor", "loess", "median",
          "na.omit", "na.pass", "predict", "qnorm", "qt", "sd")
 importFrom("utils", "write.table")
 
-import("deming","shiny")
-importFrom("MASS","rlm")
-importFrom("robustbase","lmrob")
-importFrom("plotrix", "axis.break")
+# following packages are now optional
+#import("deming","shiny")
+#importFrom("MASS","rlm")
+#importFrom("robustbase","lmrob")
+#importFrom("plotrix", "axis.break")

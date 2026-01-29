@@ -107,11 +107,19 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 				stats_out <- do.call(cor,statsArgs0)
 			} else {
 				if(stats=="rlm"){
+                    if(!requireNamespace("MASS", quietly = TRUE)){
+                        stop("package 'MASS' is missing - please install the package by running install.packages('MASS')")
+                    }
 					statsCall <- MASS::rlm
 				} else if(stats=="lmrob"){
+                    if(!requireNamespace("robustbase", quietly = TRUE)){
+                        stop("package 'robustbase' is missing - please install the package by running install.packages('robustbase')")
+                    }
 					statsCall <- robustbase::lmrob
 				} else if(stats %in% c("deming","pbreg","thielsen")){
-					require(deming)
+                    if(!requireNamespace("deming", quietly = TRUE)){
+                        stop("package 'deming' is missing - please install the package by running install.packages('deming')")
+                    }
 					statsCall <- stats
 				} else if(!isfu){
 					statsCall <- stats
@@ -584,7 +592,9 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
 					axis(1,at=ptx_lbl,labels=x_labels, lty = if(drawaxes) 1 else 0)
 				}
                 if (!is.null(gap.size.max)) {
-                    if (!requireNamespace('plotrix')) stop('package plotrix needs to be installed')
+                    if(!requireNamespace("plotrix", quietly = TRUE)){
+                        stop("package 'plotrix' is missing - please install the package by running install.packages('plotrix')")
+                    }
                     bpos <- unlist(lapply(igap, function(ind) mean(x1[ind])))
                     gap_rel <- gap_secs / diff(par('usr')[1:2])
                     if (gap.break.style[1] == 'gap') {

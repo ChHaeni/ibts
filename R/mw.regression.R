@@ -6,12 +6,24 @@ function(formula,data,window=21,min.counts=2/3,FUN=c("rlm","lmrob","lm","deming"
 		warning("argument 'min.counts' can not be larger than 1 and has been reset to 1!")
 	}
 	FUN <- FUN[1]
-	switch(FUN,
-		"deming"=require(deming),
-		"pbreg"=require(deming),
-		"thielsen"=require(deming),
-		"rlm"=require(MASS),
-		"lmrob"=require(robustbase)
+	switch(FUN
+		, "deming" =
+		, "pbreg" =
+		, "thielsen" = {
+            if(!requireNamespace("deming", quietly = TRUE)){
+                stop("package 'deming' is missing - please install the package by running install.packages('deming')")
+            }
+        }
+		, "rlm" = {
+            if(!requireNamespace("MASS", quietly = TRUE)){
+                stop("package 'MASS' is missing - please install the package by running install.packages('MASS')")
+            }
+        }
+		, "lmrob" = {
+            if(!requireNamespace("robustbase", quietly = TRUE)){
+                stop("package 'robustbase' is missing - please install the package by running install.packages('robustbase')")
+            }
+        }
 		)
 	ArgList <- match.call(expand.dots=FALSE)[["..."]]
 	if("subset" %in% names(ArgList)){
