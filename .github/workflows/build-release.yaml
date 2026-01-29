@@ -55,13 +55,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: r-package-binary
-          path: artifacts/gel_*
+          path: artifacts/ibts_*
           overwrite: true
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: artifacts/gel_*
+          artifacts: artifacts/ibts_*
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
