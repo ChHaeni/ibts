@@ -34,8 +34,8 @@ function(data,FUN,window=21,colClasses=NULL,...){
 		}
 		res	
 	})
-	isna <- sapply(out,function(x)identical(is.na(x),TRUE))
-	if(all(isna))stop("All values returned NA")
+	isna <- sapply(out, function(x) is.null(x) || all(is.na(x)))
+	if (all(isna)) stop("All values returned NA")
 	dummy <- out[!isna][[1]]
 	if(is.null(names(dummy))){
 		names(dummy) <- paste0("apply.",seq.int(length(dummy)))

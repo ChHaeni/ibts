@@ -5,6 +5,10 @@ function(formula,data,window=21,min.counts=2/3,FUN=c("rlm","lmrob","lm","deming"
 		min.counts <- 1
 		warning("argument 'min.counts' can not be larger than 1 and has been reset to 1!")
 	}
+    if (model.list) {
+        # capture data name for fixing call
+        data_obj <- substitute(data)
+    }
 	FUN <- FUN[1]
 	switch(FUN
 		, "deming" =
@@ -131,10 +135,13 @@ function(formula,data,window=21,min.counts=2/3,FUN=c("rlm","lmrob","lm","deming"
 			if(sum(ArgList$subset != 0) >= (min.counts*window)){
 				res <- try(do.call(FUN,ArgList),silent=TRUE)
 				if(inherits(res,"try-error")){
-					res <- NA
-				}
+					res <- NULL
+				} else {
+                    # fix call
+                    res$call[['data']] <- data_obj
+                }
 			} else {
-				res <- NA
+				res <- NULL
 			}
 			res
 		})
