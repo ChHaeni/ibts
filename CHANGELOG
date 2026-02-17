@@ -1,4 +1,11 @@
 
+# v*
+- Fix mw.apply vectorization
+- Fix mw.regression data name
+
+# v1.3-6
+- Fix dropping class
+- Fix github release workflow
 
 # v1.3-5
 - Fix c.POSIXct and add c.POSIXlt
