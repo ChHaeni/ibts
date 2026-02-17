@@ -194,8 +194,7 @@ as.ibts.data.frame <- function(x, st = "st", et = "et", colClasses = ifelse(sapp
             stop("interval times failure! -> et - st <= 0 (st index: ",
                 paste(st_index[check2], collapse = ', '), ')')
         } else {
-            stop("interval times failure! -> difference st to previous et < 0")
-            stop("interval times failure! -> difference st to previous et < 0 (index: ",
+            stop("interval times failure! -> difference st to previous et < 0 (st index: ",
                 paste(st_index[check3], collapse = ', '), ')')
         }
 	}
