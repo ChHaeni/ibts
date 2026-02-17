@@ -3,6 +3,7 @@
 - Fix mw.apply vectorization
 - Fix mw.regression data name
 - Provide indices on as.ibts conversion error
+- Fix shiny scope
 
 # v1.3-6
 - Fix dropping class
