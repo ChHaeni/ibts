@@ -120,7 +120,7 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
                     if(!requireNamespace("deming", quietly = TRUE)){
                         stop("package 'deming' is missing - please install the package by running install.packages('deming')")
                     }
-					statsCall <- stats
+                    statsCall <- get(stats, envir = asNamespace('deming'))
 				} else if(!isfu){
 					statsCall <- stats
 				}
