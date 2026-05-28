@@ -1,7 +1,8 @@
 addWD <- function (WD, frac = 25, y0 = NULL, lwd = 3, length = NULL, angle = 30,
   WD_col = c('wd', 'wdir'), U_col = c('ws', 'u'), addUlegend = FALSE, 
   ULegendPos = "right", inset = c(0.04, 0), pool.args = list(),
-  breaks = function (x) median(x, na.rm = TRUE) * c(0.5, 1, 2), ...){
+  breaks = function (x) median(x, na.rm = TRUE) * c(0.5, 1, 2), 
+  col = 'black', ...){
 
   usr <- par("usr")
   pin <- par("pin")
@@ -72,6 +73,13 @@ addWD <- function (WD, frac = 25, y0 = NULL, lwd = 3, length = NULL, angle = 30,
     ddx <- rep(ddx, length(WD[[1]]))
   }
 
+  # col as a function
+  if (is.function(col)) {
+      col <- col(WD[[1]], U[[1]])
+  } else {
+      col <- rep(col, length(WD[[1]]))[seq_along(WD[[1]])]
+  }
+
   for(i in seq_along(WD[[1]])){
     wd1 <- WD[i]
     if(!is.na(wd1[[1]])){
@@ -82,7 +90,10 @@ addWD <- function (WD, frac = 25, y0 = NULL, lwd = 3, length = NULL, angle = 30,
 
       vnx <- -sin(rad1)*ddx[i]
       vny <- cos(rad1)*ddy[i]
-      arrows(mx - vnx/2,my - vny/2,mx + vnx/2,my + vny/2,lwd=lwd,length=if(missing(length)) 0.35*ddy[i]*pin[2]/dy else length,angle=angle,...)
+      arrows(mx - vnx / 2, my - vny / 2, mx + vnx / 2, my + vny / 2, 
+          length = if (missing(length)) 0.35 * ddy[i] * pin[2] / dy 
+            else length,
+          lwd = lwd, angle = angle, col = col[i], ...)
     }
   }
 
