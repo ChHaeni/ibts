@@ -2,12 +2,15 @@ addWD <- function (WD, frac = 25, y0 = NULL, lwd = 3, length = NULL, angle = 30,
   WD_col = c('wd', 'wdir'), U_col = c('ws', 'u'), addUlegend = FALSE, 
   ULegendPos = "right", inset = c(0.04, 0), pool.args = list(),
   breaks = function (x) median(x, na.rm = TRUE) * c(0.5, 1, 2), 
-  col = 'black', ...){
+  col = 'black', indicate = c('none', 'dot', 'rug'), icol = col, ipch = 20, 
+  icex = 1, ilwd = 0.5, isize = 0.03, iside = c(3, 1)[1],
+  ...){
 
   usr <- par("usr")
   pin <- par("pin")
   dx <- diff(usr[1:2])
   dy <- diff(usr[3:4])
+  indicate <- match.arg(indicate)
 
   # check column names (WD)
   col_nms <- names(WD)
@@ -79,6 +82,13 @@ addWD <- function (WD, frac = 25, y0 = NULL, lwd = 3, length = NULL, angle = 30,
   } else {
       col <- rep(col, length(WD[[1]]))[seq_along(WD[[1]])]
   }
+  if (indicate != 'none') {
+      if (is.function(icol)) {
+          icol <- icol(WD[[1]], U[[1]])
+      } else {
+          icol <- rep(icol, length(WD[[1]]))[seq_along(WD[[1]])]
+      }
+  }
 
   for(i in seq_along(WD[[1]])){
     wd1 <- WD[i]
@@ -94,8 +104,18 @@ addWD <- function (WD, frac = 25, y0 = NULL, lwd = 3, length = NULL, angle = 30,
           length = if (missing(length)) 0.35 * ddy[i] * pin[2] / dy 
             else length,
           lwd = lwd, angle = angle, col = col[i], ...)
+      switch(indicate
+          , dot = points(mx, my, pch = ipch, col = icol[i], cex = icex)
+          , rug = rug(mx, ticksize = isize, side = iside, lwd = ilwd, 
+              col = icol[i])
+      )
     }
   }
+  # switch(indicate
+  #     , dot = points(mt(WD), (y0 + y1) / 2, pch = ipch, col = icol, cex = icex)
+  #     , rug = rug(mt(WD), ticksize = isize, side = iside, lwd = ilwd, 
+  #         col = icol)
+  # )
 
   if(addUlegend){
     U_lims <- range(U[[1]],na.rm=TRUE)
