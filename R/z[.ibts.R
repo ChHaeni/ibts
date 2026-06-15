@@ -129,6 +129,9 @@
 				xout <- merge(x[, j], i, suffixes = suffixes, to = "y")
 			}
 			return(xout)		
+		} else if (is.logical(i)) {
+            # fix NA in logical
+            i <- which(i)
 		} else {
 			if (neg) {
 				i <- -i

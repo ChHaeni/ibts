@@ -136,7 +136,10 @@
 					i <- -i
 				}
 			}
-		} else {
+		} else if (is.logical(i)) {
+            # fix NA in logical
+            i <- which(i)
+        } else {
 			if (neg) {
 				i <- -i
 			}
