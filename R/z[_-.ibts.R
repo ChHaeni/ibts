@@ -39,11 +39,16 @@
 				neg <- FALSE
 			}			
 		}
-        # allow selfreference through '.'
+        # allow selfreference through '.' (e.g. x[.col1 > 0, ] or x[is.na(.col1)])
         if (!isTRUE(try(is.character(i), silent = TRUE)) && any(grepl('^[.]', cl_i))) {
-            ._char <- deparse(sys.call()[-1])
-            ._name <- sub('[(].*[)]$', '', ._char)
-            ._call <- gsub('[.]', ._name, deparse(cl_i))
+            dcl_i <- deparse(cl_i)
+            # find any column names appended by a dot
+            cnm <- names(x)
+            dot_cnm <- paste0('(?<=^|[^a-zA-Z])[.](', cnm, ')(?=[^a-zA-Z]|$)')
+            ._call <- dcl_i
+            for (d in seq_along(cnm)) {
+                ._call <- gsub(dot_cnm[d], 'x$\\1', ._call, perl = TRUE)
+            }
             cl_i <- str2lang(._call)
             i <- eval(cl_i)
         }
