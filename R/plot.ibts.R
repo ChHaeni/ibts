@@ -302,7 +302,15 @@ plot.ibts <- function(x, column = seq.int(min(2,ncol(x))), se = NULL, xlim = NUL
             if(!is.null(xlim)){
                 if(is.character(xlim)){
                     if(length(xlim)==1){
-                        xlim <- parse_timerange(xlim,tz=tzone(x))
+                        xlim_tmp <- parse_timerange(xlim,tz=tzone(x))
+                        # fix missing start/end (e.g. ' to ')
+                        if (any(fixme <- !is.finite(xlim_tmp))) {
+                            # get start/end from object
+                            xlim_x <- timerange(x[xlim])
+                            # replace missing
+                            xlim_tmp[fixme] <- xlim_x[fixme]
+                        }
+                        xlim <- xlim_tmp
                     } else {
                         xlim <- parse_date_time3(xlim,tz=tzone(x),quiet=TRUE)
                     }			
