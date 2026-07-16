@@ -1,37 +1,69 @@
 "%+%" <- function(x, y) {
+    # return either POSIXct or character
+    clx <- lapply(x, class)
     lx <- length(x)
     ly <- length(y)
     xp <- lapply(x, parse_timerange, tz = 'UTC')
-    yp <- parse_time_diff(y)
-    if (lx == length(unlist(xp))) {
-        fmt_fun <- function(a) format(a, tz = 'UTC', usetz = FALSE)
+    lsx <- lengths(xp)
+    if (is.list(y)) {
+        yp <- lapply(y, parse_time_diff)
     } else {
-        fmt_fun <- deparse_timerange
+        yp <- parse_time_diff(y)
     }
-    if (ly == 1) {
-        unlist(lapply(xp, \(z) fmt_fun(z + yp)))
-    } else if (ly == 2) {
-        unlist(lapply(xp, \(z) fmt_fun(z + yp)))
+    # either times or timeranges
+    if (lx == sum(lsx)) {
+        # times only -> apply as is
+        if (clx[[1]][1] == 'character') {
+            out <- mapply('+', xp, yp, SIMPLIFY = FALSE)
+            # convert back
+            out <- sapply(out, format)
+        } else {
+            out <- x + yp
+        }
+    } else if ((2 * lx) == sum(lsx)) {
+        # timeranges only
+        out <- mapply('+', xp, yp, SIMPLIFY = FALSE)
+        # convert back
+        out <- sapply(out, deparse_timerange)
     } else {
-        stop('length of second object must be 1 or 2')
+        # mixed, is this even occuring?
+        stop('Fix mixed times/timeranges in %+%\n')
     }
+    # return
+    out
 }
 
 "%-%" <- function(x, y) {
+    # return either POSIXct or character
+    clx <- lapply(x, class)
     lx <- length(x)
     ly <- length(y)
     xp <- lapply(x, parse_timerange, tz = 'UTC')
-    yp <- parse_time_diff(y)
-    if (lx == length(unlist(xp))) {
-        fmt_fun <- function(a) format(a, tz = 'UTC', usetz = FALSE)
+    lsx <- lengths(xp)
+    if (is.list(y)) {
+        yp <- lapply(y, parse_time_diff)
     } else {
-        fmt_fun <- deparse_timerange
+        yp <- parse_time_diff(y)
     }
-    if (ly == 1) {
-        unlist(lapply(xp, \(z) fmt_fun(z - yp)))
-    } else if (ly == 2) {
-        unlist(lapply(xp, \(z) fmt_fun(z - yp)))
+    # either times or timeranges
+    if (lx == sum(lsx)) {
+        # times only -> apply as is
+        if (clx[[1]][1] == 'character') {
+            out <- mapply('-', xp, yp, SIMPLIFY = FALSE)
+            # convert back
+            out <- sapply(out, format)
+        } else {
+            out <- x - yp
+        }
+    } else if ((2 * lx) == sum(lsx)) {
+        # timeranges only
+        out <- mapply('-', xp, yp, SIMPLIFY = FALSE)
+        # convert back
+        out <- sapply(out, deparse_timerange)
     } else {
-        stop('length of second object must be 1 or 2')
+        # mixed, is this even occuring?
+        stop('Fix mixed times/timeranges in %-%\n')
     }
+    # return
+    out
 }
