@@ -40,7 +40,7 @@
 			}			
 		}
         # allow selfreference through '.' (e.g. x[.col1 > 0, ] or x[is.na(.col1)])
-        if (!isTRUE(try(is.character(i), silent = TRUE)) && any(grepl('^[.]', cl_i))) {
+        if (!isTRUE(try(is.character(i), silent = TRUE)) && any(grepl('(^|\\W)[.]', cl_i))) {
             dcl_i <- deparse(cl_i)
             # find any column names appended by a dot
             cnm <- names(x)

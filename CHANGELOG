@@ -1,6 +1,9 @@
 
 # v*
 
+# v1.4-1
+- Fix using function with self reference syntax
+
 # v1.4-0
 - Switch to as.POSIXct (origin given since R v4.3.0)
 - Switch to fast_strptime for exact matching => Add subseconds to orders
