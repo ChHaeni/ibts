@@ -1,5 +1,9 @@
 
 # v*
+
+# v1.4-0
+- Switch to as.POSIXct (origin given since R v4.3.0)
+- Switch to fast_strptime for exact matching => Add subseconds to orders
 - Fix mw.apply vectorization
 - Fix mw.regression data name
 - Provide indices on as.ibts conversion error
